@@ -6,12 +6,27 @@ Devvit.configure({
   // Include any other capabilities you need here
 });
 // Define categories and their items
-const categories: Record<string, string[]> = {
-  cricket: ['Virat Kohli', 'MS Dhoni', 'Rohit Sharma', 'Jasprit Bumrah'],
-  football: ['Lionel Messi', 'Cristiano Ronaldo', 'Neymar Jr', 'Kylian Mbappe'],
-  movies: ['Inception', 'The Godfather', 'Pulp Fiction', 'The Dark Knight'],
+// Define categories with emoji clues for each item
+const categories: Record<string, Record<string, string[]>> = {
+  cricket: {
+    'MS Dhoni': ['🥭', '👑', '🧤', '🚁', '🇮🇳'],
+    'Virat Kohli': ['🔥', '💪', '👊', '🇮🇳'],
+    'Rohit Sharma': ['🐄', '🏏', '🧠', '🇮🇳'],
+    'Jasprit Bumrah': ['🎯', '🧊', '🦵', '🇮🇳'],
+  },
+  football: {
+    'Lionel Messi': ['🐐', '🇦🇷', '🧙‍♂️', '⚽'],
+    'Cristiano Ronaldo': ['💪', '🛫', '🇵🇹', '🏆'],
+    'Neymar Jr': ['🎭', '💃', '🇧🇷', '⚽'],
+    'Kylian Mbappe': ['⚡', '👟', '🇫🇷', '🥇'],
+  },
+  movies: {
+    'Inception': ['🧠', '🌀', '💤', '🎬'],
+    'The Godfather': ['🎩', '🔫', '👨‍👦', '🇮🇹'],
+    'Pulp Fiction': ['💼', '🍔', '🗣️', '🕺'],
+    'The Dark Knight': ['🦇', '🌃', '🃏', '🖤'],
+  }
 };
-
 // Custom post type for the game
 Devvit.addCustomPostType({
   name: 'Guess The Clue',
@@ -121,8 +136,10 @@ Devvit.addCustomPostType({
     );
     
     // Function to start a new round
-    const startNewRound = () => {
-      const items = categories[category as keyof typeof categories];
+      const startNewRound = () => {
+      // Get all items for the current category
+      const items = Object.keys(categories[category]);
+      // Select a random item
       const randomItem = items[Math.floor(Math.random() * items.length)];
       setCurrentItem(randomItem);
       setMessage('');
@@ -183,13 +200,16 @@ Devvit.addCustomPostType({
               Movies
             </button>
           </hstack>
-          
           <vstack padding="medium" gap="medium" border="thin" borderColor="neutral" cornerRadius="medium">
-            <text style="heading" size="large">Clue</text>
-            {/* This is where you would show your visual clue */}
-            <text>Imagine a visual representation of: {currentItem}</text>
-            <text>(In a real implementation, this would be a drawing or visual clue)</text>
-          </vstack>
+  <text style="heading" size="large">Clue</text>
+  {/* Display emoji clues */}
+  <hstack gap="medium" alignment="center">
+    {currentItem && categories[category][currentItem].map((emoji, index) => (
+      <text key={index.toString()} size="xxlarge">{emoji}</text>
+    ))}
+  </hstack>
+  <text>(Guess based on the emoji clues above)</text>
+</vstack>
           
           <vstack gap="small" width="100%">
             <hstack>
