@@ -1,7 +1,8 @@
-import { Devvit, useState, useForm } from '@devvit/public-api';
+import { Devvit, useState, useForm, useChannel } from '@devvit/public-api';
 Devvit.configure({
   redis: true,
   redditAPI: true,
+  realtime: true, // Added realtime for leaderboard updates
   // Include any other capabilities you need here
 });
 // Define categories and their items
@@ -22,6 +23,84 @@ Devvit.addCustomPostType({
     const [userGuess, setUserGuess] = useState('');
     const [message, setMessage] = useState('');
     const [score, setScore] = useState(0);
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
+    const [leaderboard, setLeaderboard] = useState<Array<{member: string, score: number}>>([]);
+    const [username, setUsername] = useState('');
+    
+    // Get current user on initial render
+    useState(() => {
+      const fetchUser = async () => {
+        try {
+          const currentUser = await context.reddit.getCurrentUser();
+          if (currentUser) {
+            setUsername(currentUser.username);
+          }
+        } catch (error) {
+          console.error('Error getting current user:', error);
+        }
+      };
+      fetchUser();
+      return null; // Return a JSON-serializable value
+    });
+    
+    // Function to fetch the leaderboard
+    const getLeaderboard = async () => {
+      return await context.redis.zRange('leaderboard', 0, 4, {
+        reverse: true,
+        by: 'score',
+      });
+    };
+    
+    // Initialize leaderboard on first render
+    useState(() => {
+      const fetchLeaderboard = async () => {
+        try {
+          const initialLeaderboard = await getLeaderboard();
+          setLeaderboard(initialLeaderboard.filter((entry): entry is {member: string, score: number} => 
+            typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
+          ));
+        } catch (error) {
+          console.error('Error fetching leaderboard:', error);
+        }
+      };
+      fetchLeaderboard();
+      return null; // Return a JSON-serializable value
+    });
+    
+    // Set up realtime channel for leaderboard updates
+    const channel = useChannel({
+      name: 'leaderboard_updates',
+      onMessage: (newLeaderboardEntry) => {
+        const newLeaderboard = [...leaderboard, newLeaderboardEntry]
+        .sort((a, b) => {
+          // Ensure we're dealing with objects that have score property
+          const scoreA = typeof a === 'object' && a !== null && 'score' in a ? Number(a.score) : 0;
+          const scoreB = typeof b === 'object' && b !== null && 'score' in b ? Number(b.score) : 0;
+          return scoreB - scoreA;
+        })
+          .slice(0, 5); // leave top 5
+        
+        setLeaderboard(newLeaderboard.filter((entry): entry is {member: string, score: number} => 
+          typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
+        ));
+      },
+    });
+    
+    // Subscribe to the channel
+    channel.subscribe();
+    
+    // Function to save score to Redis
+    const saveScore = async (playerUsername: string, gameScore: number) => {
+      try {
+        // Add the score to the leaderboard sorted set
+        await context.redis.zAdd('leaderboard', { member: playerUsername, score: gameScore });
+        
+        // Update the leaderboard for all active sessions using realtime
+        context.realtime.send('leaderboard_updates', { member: playerUsername, score: gameScore });
+      } catch (error) {
+        console.error('Error saving score:', error);
+      }
+    };
     
     // Create a form using useForm hook
     const guessForm = useForm(
@@ -50,10 +129,16 @@ Devvit.addCustomPostType({
     };
     
     // Function to check the user's guess
-    const checkGuess = () => {
+    const checkGuess = async () => {
       if (userGuess.toLowerCase() === currentItem.toLowerCase()) {
         setMessage('Correct! You earned a point!');
-        setScore(Number(score) + 1);
+        const newScore = Number(score) + 1;
+        setScore(newScore);
+        
+        // Save score to leaderboard if user is logged in
+        if (username) {
+          await saveScore(username, newScore);
+        }
       } else {
         setMessage('Sorry, that\'s not correct. Try again!');
       }
@@ -137,6 +222,30 @@ Devvit.addCustomPostType({
           >
             New Clue
           </button>
+          
+          <button
+            onPress={() => setShowLeaderboard(!showLeaderboard)}
+          >
+            {showLeaderboard ? 'Hide Leaderboard' : 'Show Leaderboard'}
+          </button>
+          
+          {showLeaderboard && (
+            <vstack padding="medium" gap="small" border="thin" borderColor="neutral" cornerRadius="medium" width="100%">
+              <text style="heading" size="large">Leaderboard</text>
+              {leaderboard.length > 0 ? (
+                leaderboard.map((entry, index) => (
+                  <hstack key={index.toString()} gap="medium" alignment="center">
+                    <text style="heading" size="small">{index + 1}.</text>
+                    <text>{entry.member}</text>
+                    <spacer />
+                    <text style="heading">{entry.score}</text>
+                  </hstack>
+                ))
+              ) : (
+                <text>No scores yet. Be the first!</text>
+              )}
+            </vstack>
+          )}
         </vstack>
       </blocks>
     );
