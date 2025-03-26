@@ -2,21 +2,19 @@ import { Devvit, useState, useForm, useChannel } from '@devvit/public-api';
 Devvit.configure({
   redis: true,
   redditAPI: true,
-  realtime: true, // Added realtime for leaderboard updates
-  // Include any other capabilities you need here
+  realtime: true,
 });
-// Define categories and their items
-// Define categories with emoji clues for each item
+
 const categories: Record<string, Record<string, string[]>> = {
   cricket: {
-    'MS Dhoni': ['🥭', '👑', '🧤', '🚁', '🇮🇳'],
-    'Virat Kohli': ['🔥', '💪', '👊', '🇮🇳'],
+    'MS Dhoni': ['🥭', '👑', '🧴', '🚁', '🇮🇳'],
+    'Virat Kohli': ['🔥', '💪', '💊', '🇮🇳'],
     'Rohit Sharma': ['🐄', '🏏', '🧠', '🇮🇳'],
-    'Jasprit Bumrah': ['🎯', '🧊', '🦵', '🇮🇳'],
+    'Jasprit Bumrah': ['🎯', '🤊', '🦵', '🇮🇳'],
   },
   football: {
     'Lionel Messi': ['🐐', '🇦🇷', '🧙‍♂️', '⚽'],
-    'Cristiano Ronaldo': ['💪', '🛫', '🇵🇹', '🏆'],
+    'Cristiano Ronaldo': ['💪', '🛫', '🇵🍵', '🏆'],
     'Neymar Jr': ['🎭', '💃', '🇧🇷', '⚽'],
     'Kylian Mbappe': ['⚡', '👟', '🇫🇷', '🥇'],
   },
@@ -24,54 +22,49 @@ const categories: Record<string, Record<string, string[]>> = {
     'Inception': ['🧠', '🌀', '💤', '🎬'],
     'The Godfather': ['🎩', '🔫', '👨‍👦', '🇮🇹'],
     'Pulp Fiction': ['💼', '🍔', '🗣️', '🕺'],
-    'The Dark Knight': ['🦇', '🌃', '🃏', '🖤'],
+    'The Dark Knight': ['🧫', '🌃', '🃏', '♥️'],
   }
 };
-// Custom post type for the game
+
 Devvit.addCustomPostType({
   name: 'Guess The Clue',
   description: 'A fun guessing game with different categories',
   render: (context) => {
-    // Use useState directly from import, not from context
     const [category, setCategory] = useState('cricket');
     const [currentItem, setCurrentItem] = useState('');
+    const [clueIndex, setClueIndex] = useState(0);
     const [userGuess, setUserGuess] = useState('');
     const [message, setMessage] = useState('');
     const [score, setScore] = useState(0);
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [leaderboard, setLeaderboard] = useState<Array<{member: string, score: number}>>([]);
     const [username, setUsername] = useState('');
-    
-    // Get current user on initial render
+
     useState(() => {
       const fetchUser = async () => {
         try {
           const currentUser = await context.reddit.getCurrentUser();
-          if (currentUser) {
-            setUsername(currentUser.username);
-          }
+          if (currentUser) setUsername(currentUser.username);
         } catch (error) {
           console.error('Error getting current user:', error);
         }
       };
       fetchUser();
-      return null; // Return a JSON-serializable value
+      return null;
     });
-    
-    // Function to fetch the leaderboard
+
     const getLeaderboard = async () => {
       return await context.redis.zRange('leaderboard', 0, 4, {
         reverse: true,
         by: 'score',
       });
     };
-    
-    // Initialize leaderboard on first render
+
     useState(() => {
       const fetchLeaderboard = async () => {
         try {
           const initialLeaderboard = await getLeaderboard();
-          setLeaderboard(initialLeaderboard.filter((entry): entry is {member: string, score: number} => 
+          setLeaderboard(initialLeaderboard.filter((entry): entry is {member: string, score: number} =>
             typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
           ));
         } catch (error) {
@@ -79,176 +72,124 @@ Devvit.addCustomPostType({
         }
       };
       fetchLeaderboard();
-      return null; // Return a JSON-serializable value
+      return null;
     });
-    
-    // Set up realtime channel for leaderboard updates
+
     const channel = useChannel({
       name: 'leaderboard_updates',
       onMessage: (newLeaderboardEntry) => {
         const newLeaderboard = [...leaderboard, newLeaderboardEntry]
-        .sort((a, b) => {
-          // Ensure we're dealing with objects that have score property
-          const scoreA = typeof a === 'object' && a !== null && 'score' in a ? Number(a.score) : 0;
-          const scoreB = typeof b === 'object' && b !== null && 'score' in b ? Number(b.score) : 0;
-          return scoreB - scoreA;
-        })
-          .slice(0, 5); // leave top 5
+          .sort((a, b) => {
+            // Ensure we're dealing with objects that have score property
+            const scoreA = typeof a === 'object' && a !== null && 'score' in a ? Number(a.score) : 0;
+            const scoreB = typeof b === 'object' && b !== null && 'score' in b ? Number(b.score) : 0;
+            return scoreB - scoreA;
+          })
+          .slice(0, 5);
         
-        setLeaderboard(newLeaderboard.filter((entry): entry is {member: string, score: number} => 
+        setLeaderboard(newLeaderboard.filter((entry): entry is {member: string, score: number} =>
           typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
         ));
       },
     });
-    
-    // Subscribe to the channel
-    channel.subscribe();
-    
-    // Function to save score to Redis
+
     const saveScore = async (playerUsername: string, gameScore: number) => {
       try {
-        // Add the score to the leaderboard sorted set
         await context.redis.zAdd('leaderboard', { member: playerUsername, score: gameScore });
-        
-        // Update the leaderboard for all active sessions using realtime
         context.realtime.send('leaderboard_updates', { member: playerUsername, score: gameScore });
       } catch (error) {
         console.error('Error saving score:', error);
       }
     };
-    
-    // Create a form using useForm hook
+
     const guessForm = useForm(
       {
-        title: "Enter your guess",
-        fields: [
-          {
-            name: "guess",
-            label: "Your guess",
-            type: "string"
-          }
-        ]
+        title: 'Enter your guess',
+        fields: [{ name: 'guess', label: 'Your guess', type: 'string' }]
       },
       (values) => {
         setUserGuess(values.guess || '');
         setTimeout(() => checkGuess(), 100);
       }
     );
-    
-    // Function to start a new round
-      const startNewRound = () => {
-      // Get all items for the current category
+
+    const startNewRound = () => {
       const items = Object.keys(categories[category]);
-      // Select a random item
       const randomItem = items[Math.floor(Math.random() * items.length)];
       setCurrentItem(randomItem);
+      setClueIndex(0);
       setMessage('');
     };
-    
-    // Function to check the user's guess
+
     const checkGuess = async () => {
       if (userGuess.toLowerCase() === currentItem.toLowerCase()) {
-        setMessage('Correct! You earned a point!');
-        const newScore = Number(score) + 1;
+        const pointsEarned = Math.max(1, 5 - clueIndex);
+        setMessage(`Correct! You earned ${pointsEarned} point${pointsEarned > 1 ? 's' : ''}!`);
+        const newScore = score + pointsEarned;
         setScore(newScore);
-        
-        // Save score to leaderboard if user is logged in
-        if (username) {
-          await saveScore(username, newScore);
-        }
+        if (username) await saveScore(username, newScore);
       } else {
-        setMessage('Sorry, that\'s not correct. Try again!');
+        setMessage("Sorry, that's not correct. Try again!");
       }
       setUserGuess('');
     };
-    
-    // Initialize game if no current item
+
     if (!currentItem) {
       startNewRound();
     }
-    
-    // Function to change category
+
     const changeCategory = (newCategory: string) => {
       setCategory(newCategory);
-      startNewRound();
+      // Don't set currentItem to empty string
+      // Instead, directly start a new round with the new category
+      const items = Object.keys(categories[newCategory]);
+      const randomItem = items[Math.floor(Math.random() * items.length)];
+      setCurrentItem(randomItem);
+      setClueIndex(0);
+      setMessage('');
     };
-    
     return (
       <blocks height="tall">
         <vstack padding="medium" gap="medium" alignment="center">
           <text style="heading" size="xlarge">Guess The Clue!</text>
-          
           <text>Current Category: {category}</text>
-          
           <hstack gap="medium">
-            <button 
-              onPress={() => changeCategory('cricket')}
-              appearance={category === 'cricket' ? 'primary' : 'secondary'}
-            >
-              Cricket
-            </button>
-            <button 
-              onPress={() => changeCategory('football')}
-              appearance={category === 'football' ? 'primary' : 'secondary'}
-            >
-              Football
-            </button>
-            <button 
-              onPress={() => changeCategory('movies')}
-              appearance={category === 'movies' ? 'primary' : 'secondary'}
-            >
-              Movies
-            </button>
+            {['cricket', 'football', 'movies'].map((cat) => (
+              <button
+                key={cat}
+                onPress={() => changeCategory(cat)}
+                appearance={category === cat ? 'primary' : 'secondary'}
+              >
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
           </hstack>
           <vstack padding="medium" gap="medium" border="thin" borderColor="neutral" cornerRadius="medium">
-  <text style="heading" size="large">Clue</text>
-  {/* Display emoji clues */}
-  <hstack gap="medium" alignment="center">
-    {currentItem && categories[category][currentItem].map((emoji, index) => (
-      <text key={index.toString()} size="xxlarge">{emoji}</text>
-    ))}
-  </hstack>
-  <text>(Guess based on the emoji clues above)</text>
-</vstack>
-          
+            <text style="heading" size="large">Clue</text>
+            <hstack gap="medium" alignment="center">
+              {currentItem && categories[category][currentItem].slice(0, clueIndex + 1).map((emoji, index) => (
+                <text key={index.toString()} size="xxlarge">{emoji}</text>
+              ))}
+            </hstack>
+            <text>(Guess based on the emoji clues above)</text>
+            {clueIndex < categories[category][currentItem]?.length - 1 && (
+              <button onPress={() => setClueIndex(clueIndex + 1)}>Show Next Clue</button>
+            )}
+          </vstack>
           <vstack gap="small" width="100%">
             <hstack>
               <text>Your guess: </text>
-              <button onPress={() => context.ui.showForm(guessForm)}>
-                Enter guess
-              </button>
+              <button onPress={() => context.ui.showForm(guessForm)}>Enter guess</button>
             </hstack>
-            
             {userGuess && <text>Current guess: {userGuess}</text>}
-            
-            <button
-              onPress={checkGuess}
-              appearance="primary"
-            >
-              Submit Guess
-            </button>
+            <button onPress={checkGuess} appearance="primary">Submit Guess</button>
           </vstack>
-          
-          {message && (
-            <text color={message.includes('Correct') ? 'green' : 'red'}>
-              {message}
-            </text>
-          )}
-          
+          {message && <text color={message.includes('Correct') ? 'green' : 'red'}>{message}</text>}
           <text style="heading">Score: {score}</text>
-          
-          <button
-            onPress={startNewRound}
-          >
-            New Clue
-          </button>
-          
-          <button
-            onPress={() => setShowLeaderboard(!showLeaderboard)}
-          >
+          <button onPress={startNewRound}>New Clue</button>
+          <button onPress={() => setShowLeaderboard(!showLeaderboard)}>
             {showLeaderboard ? 'Hide Leaderboard' : 'Show Leaderboard'}
           </button>
-          
           {showLeaderboard && (
             <vstack padding="medium" gap="small" border="thin" borderColor="neutral" cornerRadius="medium" width="100%">
               <text style="heading" size="large">Leaderboard</text>
@@ -272,7 +213,6 @@ Devvit.addCustomPostType({
   },
 });
 
-// Add a menu item to create the game post
 Devvit.addMenuItem({
   location: 'subreddit',
   label: 'Create Guessing Game',
