@@ -1,7 +1,6 @@
 import { Devvit, useState, useForm, useChannel } from '@devvit/public-api';
-// Existing categories
 import categoriesData from './categories.json' with { type: 'json' };
-// Words JSON for WordIT
+// For WordIT
 import wordsData from './words.json' with { type: 'json' };
 
 Devvit.configure({
@@ -10,46 +9,51 @@ Devvit.configure({
   realtime: true,
 });
 
-// Types
+// Category data
 type Categories = Record<string, Record<string, string[]>>;
 const categories: Categories = categoriesData;
 
+// WordIT data
 type WordItem = {
   word: string;
-  definitions: string[]; // Exactly two definitions
+  definitions: string[]; // exactly two definitions
 };
-
 const words: WordItem[] = wordsData;
 
-// A constant black background
-const backgroundColor = '#000';
+// A constant black background for the entire project
+const getBackgroundColor = () => 'black';
 
 Devvit.addCustomPostType({
   name: 'GuessIT',
   description: 'A fun guessing game with different categories, plus WordIT mode',
   render: (context) => {
-    // Main game states
+    // ==============
+    // GLOBAL STATES
+    // ==============
     const [category, setCategory] = useState('cricket');
     const [currentItem, setCurrentItem] = useState('');
     const [clueIndex, setClueIndex] = useState(0);
     const [userGuess, setUserGuess] = useState('');
     const [message, setMessage] = useState('');
     const [score, setScore] = useState(0);
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [leaderboard, setLeaderboard] = useState<Array<{ member: string; score: number }>>([]);
     const [username, setUsername] = useState('');
-    const [currentView, setCurrentView] = useState<
-      'home' | 'game' | 'leaderboard' | 'wordit'
-    >('home');
+    const [showHome, setShowHome] = useState(true); // Home or game
+    // New: track WordIT
+    const [showWordIt, setShowWordIt] = useState(false);
+
+    // WrongCount for category game
     const [wrongCount, setWrongCount] = useState(0);
-    const [eliminated, setEliminated] = useState(false);
 
     // WordIT states
     const [currentWord, setCurrentWord] = useState<WordItem | null>(null);
-    // 3 attempts total. Attempt #1 => 3 points, #2 => 2 points, #3 => 1 point
-    const [wordAttempt, setWordAttempt] = useState(1);
+    const [wordAttempt, setWordAttempt] = useState(1); // 1..3
     const [revealedLetters, setRevealedLetters] = useState<string[]>([]);
 
-    // On load, get current user
+    // ==============
+    // On load
+    // ==============
     useState(() => {
       const fetchUser = async () => {
         try {
@@ -63,14 +67,15 @@ Devvit.addCustomPostType({
       return null;
     });
 
-    // Leaderboard logic
+    // ==============
+    // Leaderboard
+    // ==============
     const getLeaderboard = async () => {
       return await context.redis.zRange('leaderboard', 0, 4, {
         reverse: true,
         by: 'score',
       });
     };
-
     useState(() => {
       const fetchLeaderboard = async () => {
         try {
@@ -88,8 +93,6 @@ Devvit.addCustomPostType({
       fetchLeaderboard();
       return null;
     });
-
-    // Realtime channel for leaderboard
     const channel = useChannel({
       name: 'leaderboard_updates',
       onMessage: (newLeaderboardEntry) => {
@@ -109,8 +112,6 @@ Devvit.addCustomPostType({
         );
       },
     });
-
-    // Save score
     const saveScore = async (playerUsername: string, gameScore: number) => {
       try {
         await context.redis.zAdd('leaderboard', { member: playerUsername, score: gameScore });
@@ -120,11 +121,19 @@ Devvit.addCustomPostType({
       }
     };
 
-    // Form for the name
+    // ==============
+    // Forms
+    // ==============
     const nameForm = useForm(
       {
         title: 'Enter your name',
-        fields: [{ name: 'username', label: 'Your Name', type: 'string' }],
+        fields: [
+          {
+            name: 'username',
+            label: 'Your Name',
+            type: 'string',
+          },
+        ],
         acceptLabel: 'Save',
       },
       (values) => {
@@ -132,8 +141,6 @@ Devvit.addCustomPostType({
         context.ui.showToast(`Welcome, ${values.username || 'Guest'}!`);
       }
     );
-
-    // Guess form for main game
     const guessForm = useForm(
       {
         title: 'Enter your guess',
@@ -144,8 +151,6 @@ Devvit.addCustomPostType({
         setTimeout(() => checkGuess(), 100);
       }
     );
-
-    // Guess form for WordIT
     const wordITGuessForm = useForm(
       {
         title: 'Enter your guess',
@@ -157,20 +162,21 @@ Devvit.addCustomPostType({
       }
     );
 
-    // ---------------------------
-    // 1) Main Category Game Logic
-    // ---------------------------
+    // ==============
+    // Category Game
+    // ==============
     const startNewRound = () => {
-      if (wrongCount >= 5) return;
+      // Reset puzzle for category game
+      setWrongCount(0);
+      setUserGuess('');
+      setMessage('');
+      setClueIndex(0);
       const items = Object.keys(categories[category]);
       const randomItem = items[Math.floor(Math.random() * items.length)];
       setCurrentItem(randomItem);
-      setClueIndex(0);
-      setMessage('');
     };
-
     const checkGuess = async () => {
-      if (wrongCount >= 5) return;
+      if (!currentItem) return;
       if (userGuess.toLowerCase() === currentItem.toLowerCase()) {
         const pointsEarned = Math.max(1, 5 - clueIndex);
         setMessage(`Correct! You earned ${pointsEarned} point${pointsEarned > 1 ? 's' : ''}!`);
@@ -178,47 +184,25 @@ Devvit.addCustomPostType({
         setScore(newScore);
         if (username) await saveScore(username, newScore);
       } else {
-        const newWrongCount = wrongCount + 1;
-        setWrongCount(newWrongCount);
-        if (newWrongCount >= 5) {
-          setMessage('You have been eliminated!');
-          if (username) await saveScore(username, score);
-          // Refresh leaderboard
-          const updatedLeaderboard = await getLeaderboard();
-          setLeaderboard(
-            updatedLeaderboard.filter(
-              (entry): entry is { member: string; score: number } =>
-                typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
-            )
-          );
-          setTimeout(() => {
-            setEliminated(true);
-            setCurrentView('home');
-          }, 1500);
-        } else {
-          setMessage("Sorry, that's not correct. Try again!");
-        }
+        setMessage("Sorry, that's not correct. Try again!");
       }
       setUserGuess('');
     };
-
+    // Category switching
     const changeCategory = (newCategory: string) => {
       setCategory(newCategory);
+      // Immediately pick a new puzzle in that category
       const items = Object.keys(categories[newCategory]);
       const randomItem = items[Math.floor(Math.random() * items.length)];
       setCurrentItem(randomItem);
       setClueIndex(0);
       setMessage('');
+      setWrongCount(0);
     };
 
-    const totalLives = 5;
-    const livesRemaining = Math.max(0, totalLives - wrongCount);
-    const heartsDisplay = '❤️'.repeat(livesRemaining) + '♡'.repeat(totalLives - livesRemaining);
-
-    // ---------------------
-    // 2) WordIT Game Logic
-    //    3 attempts total
-    // ---------------------
+    // ==============
+    // WordIT Logic
+    // ==============
     const startWordITRound = () => {
       setWordAttempt(1);
       setUserGuess('');
@@ -226,379 +210,278 @@ Devvit.addCustomPostType({
       const randomIndex = Math.floor(Math.random() * words.length);
       const chosen = words[randomIndex];
       setCurrentWord(chosen);
-      // Prepare underscores for each letter
       const underscores = chosen.word.split('').map(() => '_');
       setRevealedLetters(underscores);
     };
-
-    // 3 total attempts => hearts
-    const getWordITHearts = () => {
-      const used = wordAttempt - 1;
-      const remaining = 3 - used;
-      return '❤️'.repeat(remaining) + '♡'.repeat(used);
-    };
-
     const revealRandomLetter = () => {
       if (!currentWord) return;
       const wordArray = currentWord.word.toUpperCase().split('');
       const newRevealed = [...revealedLetters];
-      // Find all indices still hidden
       const hiddenIndices = newRevealed
         .map((char, i) => (char === '_' ? i : -1))
         .filter((x) => x !== -1);
       if (hiddenIndices.length > 0) {
         const randIdx = Math.floor(Math.random() * hiddenIndices.length);
-        const realIndex = hiddenIndices[randIdx];
-        newRevealed[realIndex] = wordArray[realIndex];
+        newRevealed[hiddenIndices[randIdx]] = wordArray[hiddenIndices[randIdx]];
         setRevealedLetters(newRevealed);
       }
     };
-
     const checkWordITGuess = async () => {
       if (!currentWord) return;
       if (userGuess.trim().toLowerCase() === currentWord.word.toLowerCase()) {
-        // Attempt #1 => 3 points, #2 => 2, #3 => 1
-        const pointsEarned = 4 - wordAttempt; // 1->3, 2->2, 3->1
-        setMessage(`Correct! You earned ${pointsEarned} point${pointsEarned > 1 ? 's' : ''}!`);
+        // Award points
+        const attempt = wordAttempt;
+        const pointsEarned = Math.max(1, 4 - attempt); // attempt=1->3,2->2,3->1
+        setMessage(`Correct! You earned ${pointsEarned} point${pointsEarned > 1 ? 's' : ''}.`);
         const newScore = score + pointsEarned;
         setScore(newScore);
         if (username) await saveScore(username, newScore);
 
-        // After success, load next word
+        // Auto-advance after short delay
         setTimeout(() => {
           startWordITRound();
         }, 1500);
       } else {
         // Wrong guess
-        const newAttempt = wordAttempt + 1;
-        setWordAttempt(newAttempt);
-        if (newAttempt > 3) {
-          setMessage('No more attempts. You got 0 points!');
-          // 0 points => next word
+        const nextAttempt = wordAttempt + 1;
+        setWordAttempt(nextAttempt);
+        if (nextAttempt > 3) {
+          setMessage(`No more attempts! The correct word was: ${currentWord.word}.`);
           setTimeout(() => {
             startWordITRound();
           }, 1500);
         } else {
           setMessage('Sorry, try again!');
-          // Reveal a random letter after each wrong guess
           revealRandomLetter();
         }
       }
       setUserGuess('');
     };
 
-    // Show definitions
-    const getWordITDefinitions = () => {
-      if (!currentWord) return [];
-      const [def1, def2] = currentWord.definitions;
-      if (wordAttempt === 1) {
-        return [def1];
-      } else {
-        return [def1, def2];
-      }
-    };
-
-    // ---------------------
-    // Render Content
-    // ---------------------
+    // ==============
+    // Render
+    // ==============
+    // If showHome is true => home
+    // else if showWordIt => WordIT
+    // else => category game
     let content;
-    if (currentView === 'home') {
-      // HOME SCREEN
-      if (eliminated) {
-        // If user got eliminated in the main game
-        content = (
-          <vstack padding="small" gap="small" alignment="center" backgroundColor={backgroundColor}>
-            <text style="heading" size="medium">
-              Game Over
-            </text>
-            <text size="small">Your final score: {score}</text>
+    if (showHome) {
+      // HOME
+      content = (
+        <vstack padding="medium" gap="large" alignment="center" backgroundColor={getBackgroundColor()}>
+          <text style="heading" size="xxlarge">GuessIT</text>
+          <image
+            url="logo.png"
+            imageWidth={150}
+            imageHeight={150}
+            description="GuessIT game logo"
+          />
+          <vstack gap="medium" width="80%">
             <button
               appearance="primary"
               onPress={() => {
-                setEliminated(false);
-                setScore(0);
-                setWrongCount(0);
-                setCurrentView('game');
+                context.ui.showForm(nameForm);
+              }}
+            >
+              Enter Your Name
+            </button>
+            <text>{username ? `Playing as: ${username}` : 'No name entered yet'}</text>
+            <button
+              appearance="primary"
+              onPress={() => {
+                if (!username) {
+                  setUsername(`Guest-${Math.floor(Math.random() * 10000)}`);
+                }
+                setShowHome(false);
+                // Initialize category game
+                setShowWordIt(false);
                 startNewRound();
               }}
-              size="small"
+              size="large"
             >
-              Play Again
+              Start Game
             </button>
+            {/* Add a button for WordIT */}
             <button
-              appearance="secondary"
-              onPress={() => setCurrentView('leaderboard')}
-              size="small"
+              appearance="primary"
+              onPress={() => {
+                if (!username) {
+                  setUsername(`Guest-${Math.floor(Math.random() * 10000)}`);
+                }
+                setShowHome(false);
+                setShowWordIt(true);
+                startWordITRound();
+              }}
+              size="large"
             >
-              View Leaderboard
+              Play WordIT
             </button>
             <button
               appearance="secondary"
               onPress={() => {
-                setEliminated(false);
-                setScore(0);
-                setWrongCount(0);
-                setCurrentView('home');
+                setShowLeaderboard(true);
+                setShowHome(false);
               }}
-              size="small"
+              size="large"
             >
-              Home
+              View Leaderboard
             </button>
           </vstack>
-        );
-      } else {
-        // Normal home screen
-        content = (
-          <vstack padding="small" gap="small" alignment="center" backgroundColor={backgroundColor}>
-            <text style="heading" size="medium">
-              GuessIT
-            </text>
-            <image
-              url="logo.png"
-              imageWidth={80}
-              imageHeight={80}
-              description="GuessIT game logo"
-            />
-            <vstack gap="small" width="80%">
-              <button
-                appearance="primary"
-                onPress={() => context.ui.showForm(nameForm)}
-                size="small"
-              >
-                Enter Your Name
-              </button>
-              <text size="small">
-                {username ? `Playing as: ${username}` : 'No name entered yet'}
-              </text>
-              <button
-                appearance="primary"
-                onPress={() => {
-                  if (!username) {
-                    setUsername(`Guest-${Math.floor(Math.random() * 10000)}`);
-                  }
-                  setScore(0);
-                  setWrongCount(0);
-                  setEliminated(false);
-                  setCurrentView('game');
-                  startNewRound();
-                }}
-                size="small"
-              >
-                Start Game
-              </button>
-              <button
-                appearance="primary"
-                onPress={() => {
-                  if (!username) {
-                    setUsername(`Guest-${Math.floor(Math.random() * 10000)}`);
-                  }
-                  setEliminated(false);
-                  setCurrentView('wordit');
-                  startWordITRound();
-                }}
-                size="small"
-              >
-                Play WordIT
-              </button>
-              <button
-                appearance="secondary"
-                onPress={() => setCurrentView('leaderboard')}
-                size="small"
-              >
-                View Leaderboard
-              </button>
-            </vstack>
-            <text size="small">A fun emoji guessing game or guess-a-word mode!</text>
-          </vstack>
-        );
-      }
-    } else if (currentView === 'game') {
-      // MAIN GAME SCREEN
+          <text size="small">A fun emoji guessing game!</text>
+        </vstack>
+      );
+    } else if (showWordIt) {
+      // WORDIT
+      // If scoreboard is toggled, show scoreboard overlay or do we do that?
+      // We'll just do a scoreboard toggle if you want.
+      const attemptUsed = wordAttempt - 1;
+      const attemptHearts = '❤️'.repeat(3 - attemptUsed) + '♡'.repeat(attemptUsed);
+
       content = (
-        <vstack padding="small" gap="small" alignment="center" backgroundColor={backgroundColor}>
-          <hstack width="100%" alignment="start top" gap="small">
+        <vstack padding="medium" gap="medium" alignment="center" backgroundColor={getBackgroundColor()}>
+          <hstack width="100%" alignment="start top" gap="medium">
             <button
               appearance="secondary"
               size="small"
               icon="back"
-              onPress={() => setCurrentView('home')}
+              onPress={() => {
+                setShowHome(true);
+                setShowWordIt(false);
+              }}
             >
               Back
             </button>
-            <text style="heading" size="small">
-              Score: {score}
-            </text>
+            <text style="heading">Score: {score}</text>
             <spacer />
-            <text size="small">{heartsDisplay}</text>
+            <text>{attemptHearts}</text>
           </hstack>
-          <text style="heading" size="medium">
-            Guess The Clue!
-          </text>
-          <text size="small">Current Category: {category}</text>
-          <hstack gap="small">
-            {Object.keys(categories).map((cat, index) => (
+          <text style="heading" size="xlarge">WordIT Mode</text>
+          {currentWord ? (
+            <>
+              {/* Show definitions */}
+              {(() => {
+                const [def1, def2] = currentWord.definitions;
+                // If wordAttempt=1 => only def1
+                // else => def1 & def2
+                if (wordAttempt === 1) {
+                  return <text>Clue 1: {def1}</text>;
+                } else {
+                  return (
+                    <>
+                      <text>Clue 1: {def1}</text>
+                      <text>Clue 2: {def2}</text>
+                    </>
+                  );
+                }
+              })()}
+              {/* Show revealed letters */}
+              <text size="large">{revealedLetters.join(' ')}</text>
+              <text>(Guess the word!)</text>
+              <button onPress={() => context.ui.showForm(wordITGuessForm)}>Enter Guess</button>
+              {userGuess && <text>Current guess: {userGuess}</text>}
+              <button onPress={checkWordITGuess} appearance="primary">
+                Submit Guess
+              </button>
+              {message && <text color={message.includes('Correct') ? 'green' : 'red'}>{message}</text>}
+              <text style="heading">Score: {score}</text>
+            </>
+          ) : (
+            <text>Loading word...</text>
+          )}
+          <button
+            onPress={() => {
+              setShowWordIt(false);
+              setShowHome(true);
+            }}
+          >
+            Back to Home
+          </button>
+        </vstack>
+      );
+    } else {
+      // Category game UI
+      content = (
+        <vstack padding="medium" gap="medium" alignment="center" backgroundColor={getBackgroundColor()}>
+          <hstack width="100%" alignment="start top" gap="medium">
+            <button
+              appearance="secondary"
+              size="small"
+              icon="back"
+              onPress={() => setShowHome(true)}
+            >
+              Back
+            </button>
+            <text style="heading">Score: {score}</text>
+          </hstack>
+          <text style="heading" size="xlarge">Guess The Clue!</text>
+          <text>Current Category: {category}</text>
+          <hstack gap="medium">
+            {Object.keys(categories).map((cat) => (
               <button
-                key={index.toString()}
+                key={cat}
                 onPress={() => changeCategory(cat)}
                 appearance={category === cat ? 'primary' : 'secondary'}
-                size="small"
               >
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
               </button>
             ))}
           </hstack>
-          <vstack padding="small" gap="small" border="thin" borderColor="neutral" cornerRadius="small">
-            <text style="heading" size="small">
-              Clue
-            </text>
-            <hstack gap="small" alignment="center">
+          <vstack padding="medium" gap="medium" border="thin" borderColor="neutral" cornerRadius="medium">
+            <text style="heading" size="large">Clue</text>
+            <hstack gap="medium" alignment="center">
               {currentItem &&
-                categories[category][currentItem]
-                  .slice(0, clueIndex + 1)
-                  .map((emoji, index) => (
-                    <text key={index.toString()} size="small">
-                      {emoji}
-                    </text>
-                  ))}
+                categories[category][currentItem].slice(0, clueIndex + 1).map((emoji, index) => (
+                  <text key={index.toString()} size="xxlarge">{emoji}</text>
+                ))}
             </hstack>
-            <text size="xsmall">(Guess based on the clues above)</text>
+            <text>(Guess based on the clues above)</text>
             {clueIndex < categories[category][currentItem]?.length - 1 && (
-              <button onPress={() => setClueIndex(clueIndex + 1)} size="small">
-                Show Next Clue
-              </button>
+              <button onPress={() => setClueIndex(clueIndex + 1)}>Show Next Clue</button>
             )}
           </vstack>
           <vstack gap="small" width="100%">
             <hstack>
-              <text size="small">Your guess: </text>
-              <button onPress={() => context.ui.showForm(guessForm)} size="small">
-                Enter guess
-              </button>
+              <text>Your guess: </text>
+              <button onPress={() => context.ui.showForm(guessForm)}>Enter guess</button>
             </hstack>
-            {userGuess && <text size="small">Current guess: {userGuess}</text>}
-            <button onPress={checkGuess} appearance="primary" disabled={wrongCount >= 5} size="small">
-              Submit Guess
-            </button>
+            {userGuess && <text>Current guess: {userGuess}</text>}
+            <button onPress={checkGuess} appearance="primary">Submit Guess</button>
           </vstack>
-          {message && (
-            <text color={message.includes('Correct') ? 'green' : 'red'} size="small">
-              {message}
-            </text>
-          )}
-          <text style="heading" size="small">
-            Score: {score}
-          </text>
-          <button onPress={startNewRound} disabled={wrongCount >= 5} size="small">
-            New Clue
+          {message && <text color={message.includes('Correct') ? 'green' : 'red'}>{message}</text>}
+          <text style="heading">Score: {score}</text>
+          <button onPress={startNewRound}>New Clue</button>
+          <button onPress={() => setShowLeaderboard(!showLeaderboard)}>
+            {showLeaderboard ? 'Hide Leaderboard' : 'Show Leaderboard'}
           </button>
-          <button onPress={() => setCurrentView('leaderboard')} size="small">
-            Go to Leaderboard
-          </button>
-        </vstack>
-      );
-    } else if (currentView === 'wordit') {
-      // WORDIT SCREEN (3 attempts, hearts shown)
-      const worditHearts = getWordITHearts();
-      content = (
-        <vstack padding="small" gap="small" alignment="center" backgroundColor={backgroundColor}>
-          <hstack width="100%" alignment="start top" gap="small">
-            <button
-              appearance="secondary"
-              size="small"
-              icon="back"
-              onPress={() => setCurrentView('home')}
+          {showLeaderboard && (
+            <vstack
+              padding="medium"
+              gap="small"
+              border="thin"
+              borderColor="neutral"
+              cornerRadius="medium"
+              width="100%"
             >
-              Back
-            </button>
-            <text style="heading" size="small">
-              Score: {score}
-            </text>
-            <spacer />
-            <text size="small">{worditHearts}</text>
-          </hstack>
-          <text style="heading" size="medium">
-            WordIT Mode
-          </text>
-          {currentWord ? (
-            <>
-              {/* Show definitions */}
-              {getWordITDefinitions().map((def, i) => (
-                <text key={i.toString()} size="small">
-                  Clue {i + 1}: {def}
-                </text>
-              ))}
-              {/* Show revealed letters */}
-              <text size="small">{revealedLetters.join(' ')}</text>
-
-              <hstack gap="small">
-                <text size="small">Attempt: {wordAttempt} / 3</text>
-                <button
-                  onPress={() => context.ui.showForm(wordITGuessForm)}
-                  appearance="primary"
-                  size="small"
-                >
-                  Enter Guess
-                </button>
-              </hstack>
-
-              {userGuess && <text size="small">Current guess: {userGuess}</text>}
-              {message && (
-                <text color={message.includes('Correct') ? 'green' : 'red'} size="small">
-                  {message}
-                </text>
+              <text style="heading" size="large">Leaderboard</text>
+              {leaderboard.length > 0 ? (
+                leaderboard.map((entry, index) => (
+                  <hstack key={index.toString()} gap="medium" alignment="center">
+                    <text style="heading" size="small">{index + 1}.</text>
+                    <text>{entry.member}</text>
+                    <spacer />
+                    <text style="heading">{entry.score}</text>
+                  </hstack>
+                ))
+              ) : (
+                <text>No scores yet. Be the first!</text>
               )}
-              <text size="small">Score: {score}</text>
-            </>
-          ) : (
-            <text size="small">Loading word...</text>
+            </vstack>
           )}
-        </vstack>
-      );
-    } else if (currentView === 'leaderboard') {
-      // LEADERBOARD
-      content = (
-        <vstack padding="small" gap="small" alignment="center" backgroundColor={backgroundColor}>
-          <hstack width="100%" alignment="start top" gap="small">
-            <button
-              appearance="secondary"
-              size="small"
-              icon="back"
-              onPress={() => setCurrentView('home')}
-            >
-              Back
-            </button>
-            <text style="heading" size="medium">
-              Leaderboard
-            </text>
-          </hstack>
-          {leaderboard.length > 0 ? (
-            leaderboard.map((entry, index) => (
-              <hstack key={index.toString()} gap="small" alignment="center">
-                <text style="heading" size="small">
-                  {index + 1}.
-                </text>
-                <text size="small">{entry.member}</text>
-                <spacer />
-                <text style="heading" size="small">
-                  {entry.score}
-                </text>
-              </hstack>
-            ))
-          ) : (
-            <text size="small">No scores yet. Be the first!</text>
-          )}
-          <button onPress={() => setCurrentView('home')} appearance="primary" size="small">
-            Back to Home
-          </button>
         </vstack>
       );
     }
 
-    return (
-      <blocks height="tall">
-        {content}
-      </blocks>
-    );
+    return <blocks height="tall">{content}</blocks>;
   },
 });
 
