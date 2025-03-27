@@ -13,7 +13,7 @@ type Categories = Record<string, Record<string, string[]>>;
 const categories: Categories = categoriesData;
 
 Devvit.addCustomPostType({
-  name: 'Guess The Clue',
+  name: 'GuessIT',
   description: 'A fun guessing game with different categories',
   render: (context) => {
     const [category, setCategory] = useState('cricket');
@@ -205,7 +205,7 @@ Devvit.addMenuItem({
   onPress: async (_, context) => {
     const currentSubreddit = await context.reddit.getCurrentSubreddit();
     await context.reddit.submitPost({
-      title: 'Guess The Clue Game',
+      title: 'GuessIT',
       subredditName: currentSubreddit.name,
       preview: (
         <vstack>
