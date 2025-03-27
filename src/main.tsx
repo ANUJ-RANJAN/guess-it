@@ -1,30 +1,16 @@
 import { Devvit, useState, useForm, useChannel } from '@devvit/public-api';
+import categoriesData from './categories.json' with { type: 'json' };
+
 Devvit.configure({
   redis: true,
   redditAPI: true,
   realtime: true,
 });
 
-const categories: Record<string, Record<string, string[]>> = {
-  cricket: {
-    'MS Dhoni': ['🥭', '👑', '🧴', '🚁', '🇮🇳'],
-    'Virat Kohli': ['🔥', '💪', '💊', '🇮🇳'],
-    'Rohit Sharma': ['🐄', '🏏', '🧠', '🇮🇳'],
-    'Jasprit Bumrah': ['🎯', '🤊', '🦵', '🇮🇳'],
-  },
-  football: {
-    'Lionel Messi': ['🐐', '🇦🇷', '🧙‍♂️', '⚽'],
-    'Cristiano Ronaldo': ['💪', '🛫', '🇵🍵', '🏆'],
-    'Neymar Jr': ['🎭', '💃', '🇧🇷', '⚽'],
-    'Kylian Mbappe': ['⚡', '👟', '🇫🇷', '🥇'],
-  },
-  movies: {
-    'Inception': ['🧠', '🌀', '💤', '🎬'],
-    'The Godfather': ['🎩', '🔫', '👨‍👦', '🇮🇹'],
-    'Pulp Fiction': ['💼', '🍔', '🗣️', '🕺'],
-    'The Dark Knight': ['🧫', '🌃', '🃏', '♥️'],
-  }
-};
+// TypeScript type for categories
+type Categories = Record<string, Record<string, string[]>>;
+
+const categories: Categories = categoriesData;
 
 Devvit.addCustomPostType({
   name: 'Guess The Clue',
@@ -154,7 +140,7 @@ Devvit.addCustomPostType({
           <text style="heading" size="xlarge">Guess The Clue!</text>
           <text>Current Category: {category}</text>
           <hstack gap="medium">
-            {['cricket', 'football', 'movies'].map((cat) => (
+            {Object.keys(categories).map((cat) => (
               <button
                 key={cat}
                 onPress={() => changeCategory(cat)}
