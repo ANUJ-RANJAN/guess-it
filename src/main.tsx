@@ -25,7 +25,17 @@ Devvit.addCustomPostType({
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [leaderboard, setLeaderboard] = useState<Array<{member: string, score: number}>>([]);
     const [username, setUsername] = useState('');
-
+    const [currentView, setCurrentView] = useState<'home' | 'game' | 'leaderboard'>('home');
+    const [showHome, setShowHome] = useState(true);
+    // Dynamic background based on category
+const getBackgroundColor = () => {
+  switch(category) {
+    case 'cricket': return 'blue';
+    case 'football': return 'green';
+    case 'movies': return 'purple';
+    default: return 'blue';
+  }
+};
     useState(() => {
       const fetchUser = async () => {
         try {
@@ -87,7 +97,25 @@ Devvit.addCustomPostType({
         console.error('Error saving score:', error);
       }
     };
-
+// Add this near your other state variables
+const nameForm = useForm(
+  {
+    title: "Enter your name",
+    fields: [
+      {
+        name: "username",
+        label: "Your Name",
+        type: "string"
+      }
+    ],
+    acceptLabel: "Save"
+  },
+  (values) => {
+    console.log("Form submitted with:", values.username);
+    setUsername(values.username || `Guest-${Math.floor(Math.random() * 10000)}`);
+    context.ui.showToast(`Welcome, ${values.username || "Guest"}!`);
+  }
+);
     const guessForm = useForm(
       {
         title: 'Enter your guess',
@@ -136,85 +164,155 @@ Devvit.addCustomPostType({
     };
     return (
       <blocks height="tall">
-        <vstack padding="medium" gap="medium" alignment="center">
-          <text style="heading" size="xlarge">Guess The Clue!</text>
-          <text>Current Category: {category}</text>
-          <hstack gap="medium">
-            {Object.keys(categories).map((cat) => (
-              <button
-                key={cat}
-                onPress={() => changeCategory(cat)}
-                appearance={category === cat ? 'primary' : 'secondary'}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            ))}
-          </hstack>
-          <vstack padding="medium" gap="medium" border="thin" borderColor="neutral" cornerRadius="medium">
-            <text style="heading" size="large">Clue</text>
-            <hstack gap="medium" alignment="center">
-              {currentItem && categories[category][currentItem].slice(0, clueIndex + 1).map((emoji, index) => (
-                <text key={index.toString()} size="xxlarge">{emoji}</text>
+        {showHome ? (
+          // Home page
+          <vstack padding="medium" gap="large" alignment="center" backgroundColor={getBackgroundColor()}>
+            <text style="heading" size="xxlarge">GuessIT</text>
+            
+            {/* Game logo */}
+            <image 
+              url="logo.png" 
+              imageWidth={150} 
+              imageHeight={150} 
+              description="GuessIT game logo"
+            />
+            
+            {/* Name entry section */}
+            <vstack gap="medium" width="80%">
+  <button 
+    appearance="primary" 
+    onPress={() => {
+      context.ui.showForm(nameForm);
+    }}
+  >
+    Enter Your Name
+  </button>
+  
+  {/* Add this to show the current username */}
+  <text>{username ? `Playing as: ${username}` : "No name entered yet"}</text>
+  
+  <button 
+    appearance="primary" 
+    onPress={() => {
+      if (username) {
+        setShowHome(false);
+        startNewRound();
+      } else {
+        setUsername(`Guest-${Math.floor(Math.random() * 10000)}`);
+        setShowHome(false);
+        startNewRound();
+      }
+    }}
+    size="large"
+  >
+    Start Game
+  </button>
+  
+
+  <button 
+  appearance="secondary" 
+  onPress={() => {
+    setShowLeaderboard(true);
+    setShowHome(false); // Add this to navigate away from home
+  }}
+  size="large"
+>
+  View Leaderboard
+</button>
+            </vstack>
+            
+            <text size="small">A fun emoji guessing game!</text>
+          </vstack>
+        ) : (
+          // Your existing game UI
+          <vstack padding="medium" gap="medium" alignment="center" backgroundColor={getBackgroundColor()}>
+            <text style="heading" size="xlarge">Guess The Clue!</text>
+            <text>Current Category: {category}</text>
+            <hstack gap="medium">
+              {Object.keys(categories).map((cat) => (
+                <button
+                  key={cat}
+                  onPress={() => changeCategory(cat)}
+                  appearance={category === cat ? 'primary' : 'secondary'}
+                >
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
               ))}
             </hstack>
-            <text>(Guess based on the emoji clues above)</text>
-            {clueIndex < categories[category][currentItem]?.length - 1 && (
-              <button onPress={() => setClueIndex(clueIndex + 1)}>Show Next Clue</button>
-            )}
-          </vstack>
-          <vstack gap="small" width="100%">
-            <hstack>
-              <text>Your guess: </text>
-              <button onPress={() => context.ui.showForm(guessForm)}>Enter guess</button>
-            </hstack>
-            {userGuess && <text>Current guess: {userGuess}</text>}
-            <button onPress={checkGuess} appearance="primary">Submit Guess</button>
-          </vstack>
-          {message && <text color={message.includes('Correct') ? 'green' : 'red'}>{message}</text>}
-          <text style="heading">Score: {score}</text>
-          <button onPress={startNewRound}>New Clue</button>
-          <button onPress={() => setShowLeaderboard(!showLeaderboard)}>
-            {showLeaderboard ? 'Hide Leaderboard' : 'Show Leaderboard'}
-          </button>
-          {showLeaderboard && (
-            <vstack padding="medium" gap="small" border="thin" borderColor="neutral" cornerRadius="medium" width="100%">
-              <text style="heading" size="large">Leaderboard</text>
-              {leaderboard.length > 0 ? (
-                leaderboard.map((entry, index) => (
-                  <hstack key={index.toString()} gap="medium" alignment="center">
-                    <text style="heading" size="small">{index + 1}.</text>
-                    <text>{entry.member}</text>
-                    <spacer />
-                    <text style="heading">{entry.score}</text>
-                  </hstack>
-                ))
-              ) : (
-                <text>No scores yet. Be the first!</text>
+            <vstack padding="medium" gap="medium" border="thin" borderColor="neutral" cornerRadius="medium">
+              <text style="heading" size="large">Clue</text>
+              <hstack gap="medium" alignment="center">
+                {currentItem && categories[category][currentItem].slice(0, clueIndex + 1).map((emoji, index) => (
+                  <text key={index.toString()} size="xxlarge">{emoji}</text>
+                ))}
+              </hstack>
+              <text>(Guess based on the clues above)</text>
+              {clueIndex < categories[category][currentItem]?.length - 1 && (
+                <button onPress={() => setClueIndex(clueIndex + 1)}>Show Next Clue</button>
               )}
             </vstack>
-          )}
-        </vstack>
+            <vstack gap="small" width="100%">
+              <hstack>
+                <text>Your guess: </text>
+                <button onPress={() => context.ui.showForm(guessForm)}>Enter guess</button>
+              </hstack>
+              {userGuess && <text>Current guess: {userGuess}</text>}
+              <button onPress={checkGuess} appearance="primary">Submit Guess</button>
+            </vstack>
+            {message && <text color={message.includes('Correct') ? 'green' : 'red'}>{message}</text>}
+            <text style="heading">Score: {score}</text>
+            <button onPress={startNewRound}>New Clue</button>
+            <button onPress={() => setShowLeaderboard(!showLeaderboard)}>
+              {showLeaderboard ? 'Hide Leaderboard' : 'Show Leaderboard'}
+            </button>
+            {showLeaderboard && (
+              <vstack padding="medium" gap="small" border="thin" borderColor="neutral" cornerRadius="medium" width="100%">
+                <text style="heading" size="large">Leaderboard</text>
+                {leaderboard.length > 0 ? (
+                  leaderboard.map((entry, index) => (
+                    <hstack key={index.toString()} gap="medium" alignment="center">
+                      <text style="heading" size="small">{index + 1}.</text>
+                      <text>{entry.member}</text>
+                      <spacer />
+                      <text style="heading">{entry.score}</text>
+                    </hstack>
+                  ))
+                ) : (
+                  <text>No scores yet. Be the first!</text>
+                )}
+              </vstack>
+            )}
+            
+            {/* Back to home button */}
+            <button 
+              appearance="secondary" 
+              onPress={() => setShowHome(true)}
+            >
+              Back to Home
+            </button>
+          </vstack>
+        )}
       </blocks>
     );
-  },
-});
-
-Devvit.addMenuItem({
-  location: 'subreddit',
-  label: 'Create Guessing Game',
-  onPress: async (_, context) => {
-    const currentSubreddit = await context.reddit.getCurrentSubreddit();
-    await context.reddit.submitPost({
-      title: 'GuessIT',
-      subredditName: currentSubreddit.name,
-      preview: (
-        <vstack>
-          <text>Loading Guessing Game...</text>
-        </vstack>
-      ),
+      },
     });
-    context.ui.showToast(`Created Guessing Game in r/${currentSubreddit.name}`);
-  },
-});
-
-export default Devvit;
+    
+    Devvit.addMenuItem({
+      location: 'subreddit',
+      label: 'Create Guessing Game',
+      onPress: async (_, context) => {
+        const currentSubreddit = await context.reddit.getCurrentSubreddit();
+        await context.reddit.submitPost({
+          title: 'GuessIT',
+          subredditName: currentSubreddit.name,
+          preview: (
+            <vstack>
+              <text>Loading Guessing Game...</text>
+            </vstack>
+          ),
+        });
+        context.ui.showToast(`Created Guessing Game in r/${currentSubreddit.name}`);
+      },
+    });
+    
+    export default Devvit;
