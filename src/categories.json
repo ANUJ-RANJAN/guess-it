@@ -1,38 +1,38 @@
 {
-    "cricket": {
-      "MS Dhoni": ["🇮🇳 Wicketkeeper", "7️⃣", "MSD", "🏆 2011 WC"],
-      "Virat Kohli": ["🇮🇳 Batsman", "1️⃣8️⃣", "VK", "2️⃣5️⃣4️⃣"],
-      "Rohit Sharma": ["🇮🇳 Opener", "4️⃣5️⃣", "RS", "2️⃣6️⃣4️⃣"],
-      "Jasprit Bumrah": ["🇮🇳 Fast Bowler", "9️⃣3️⃣", "JB", "6️⃣/1️⃣9️⃣"],
-      "Steve Smith": ["🇦🇺 Batsman", "4️⃣9️⃣", "SS", "2️⃣3️⃣9️⃣"],
-      "Kane Williamson": ["🇳🇿 Batsman", "2️⃣2️⃣", "KW", "2️⃣5️⃣1️⃣"],
-      "Joe Root": ["🏴󠁧󠁢󠁥󠁮󠁧󠁿 Batsman", "6️⃣6️⃣", "JR", "2️⃣5️⃣4️⃣"],
-      "Ben Stokes": ["🏴󠁧󠁢󠁥󠁮󠁧󠁿 All-rounder", "5️⃣5️⃣", "BS", "1️⃣5️⃣8️⃣"],
-      "Pat Cummins": ["🇦🇺 Fast Bowler", "3️⃣0️⃣", "PC", "6️⃣/2️⃣3️⃣"],
-      "Babar Azam": ["🇵🇰 Batsman", "5️⃣6️⃣", "BA", "1️⃣9️⃣6️⃣"]
-    },
-    "football": {
-      "Lionel Messi": ["🇦🇷 Forward", "1️⃣0️⃣", "LM", "9️⃣1️⃣ goals"],
-      "Cristiano Ronaldo": ["🇵🇹 Forward", "7️⃣", "CR", "8️⃣5️⃣0️⃣+ goals"],
-      "Neymar Jr": ["🇧🇷 Forward", "1️⃣0️⃣", "NJ", "7️⃣7️⃣ goals"],
-      "Kylian Mbappe": ["🇫🇷 Forward", "7️⃣", "KM", "4️⃣2️⃣ goals"],
-      "Robert Lewandowski": ["🇵🇱 Striker", "9️⃣", "RL", "4️⃣1️⃣ goals"],
-      "Kevin De Bruyne": ["🇧🇪 Midfielder", "1️⃣7️⃣", "KD", "2️⃣0️⃣ assists"],
-      "Erling Haaland": ["🇳🇴 Striker", "9️⃣", "EH", "3️⃣6️⃣ goals"],
-      "Mohamed Salah": ["🇪🇬 Forward", "1️⃣1️⃣", "MS", "3️⃣2️⃣ goals"],
-      "Virgil van Dijk": ["🇳🇱 Defender", "4️⃣", "VD", "🏆 UCL"],
-      "Luka Modric": ["🇭🇷 Midfielder", "1️⃣0️⃣", "LM", "🏆 Ballon d'Or"]
-    },
-    "movies": {
-      "Inception": ["🧠", "🌀", "💤", "🎬"],
-      "The Godfather": ["🎩", "🔫", "👨‍👦", "🇮🇹"],
-      "Pulp Fiction": ["💼", "🍔", "🗣️", "🕺"],
-      "The Dark Knight": ["🦇", "🃏", "💣", "🏙️"],
-      "Titanic": ["🚢", "💎", "❄️", "💔"],
-      "Avatar": ["🌿", "👽", "🌳", "🔵"],
-      "Star Wars": ["✨", "🌌", "⚔️", "👨‍👦"],
-      "The Matrix": ["💊", "🕶️", "🤖", "💻"],
-      "Jurassic Park": ["🦖", "🦕", "🏝️", "🧬"],
-      "The Shawshank Redemption": ["🔒", "🔨", "🌧️", "🏃‍♂️"]
-    }
+  "cricket": {
+    "MS Dhoni": ["🇮🇳 Wicketkeeper", "7️⃣", "MD", "🏆 2011 WC"],
+    "Virat Kohli": ["🇮🇳 Batsman", "1️⃣8️⃣", "VK", "2️⃣5️⃣4️⃣"],
+    "Rohit Sharma": ["🇮🇳 Opener", "4️⃣5️⃣", "RS", "2️⃣6️⃣4️⃣"],
+    "Jasprit Bumrah": ["🇮🇳 Fast Bowler", "9️⃣3️⃣", "JB", "6️⃣/1️⃣9️⃣"],
+    "Steve Smith": ["🇦🇺 Batsman", "4️⃣9️⃣", "SS", "2️⃣3️⃣9️⃣"],
+    "Kane Williamson": ["🇳🇿 Batsman", "2️⃣2️⃣", "KW", "2️⃣5️⃣1️⃣"],
+    "Joe Root": ["🏴󠁧󠁢󠁥󠁮󠁧󠁿 Batsman", "6️⃣6️⃣", "JR", "2️⃣5️⃣4️⃣"],
+    "Ben Stokes": ["🏴󠁧󠁢󠁥󠁮󠁧󠁿 All-rounder", "5️⃣5️⃣", "BS", "1️⃣5️⃣8️⃣"],
+    "Pat Cummins": ["🇦🇺 Fast Bowler", "3️⃣0️⃣", "PC", "6️⃣/2️⃣3️⃣"],
+    "Babar Azam": ["🇵🇰 Batsman", "5️⃣6️⃣", "BA", "1️⃣9️⃣6️⃣"]
+  },
+  "football": {
+    "Lionel Messi": ["🇦🇷 Forward", "1️⃣0️⃣", "LM", "9️⃣1️⃣ goals"],
+    "Cristiano Ronaldo": ["🇵🇹 Forward", "7️⃣", "CR", "8️⃣5️⃣0️⃣+ goals"],
+    "Neymar Jr": ["🇧🇷 Forward", "1️⃣0️⃣", "NJ", "7️⃣7️⃣ goals"],
+    "Kylian Mbappe": ["🇫🇷 Forward", "7️⃣", "KM", "4️⃣2️⃣ goals"],
+    "Robert Lewandowski": ["🇵🇱 Striker", "9️⃣", "RL", "4️⃣1️⃣ goals"],
+    "Kevin De Bruyne": ["🇧🇪 Midfielder", "1️⃣7️⃣", "KD", "2️⃣0️⃣ assists"],
+    "Erling Haaland": ["🇳🇴 Striker", "9️⃣", "EH", "3️⃣6️⃣ goals"],
+    "Mohamed Salah": ["🇪🇬 Forward", "1️⃣1️⃣", "MS", "3️⃣2️⃣ goals"],
+    "Virgil van Dijk": ["🇳🇱 Defender", "4️⃣", "VD", "🏆 UCL"],
+    "Luka Modric": ["🇭🇷 Midfielder", "1️⃣0️⃣", "LM", "🏆 Ballon d'Or"]
+  },
+  "movies": {
+    "Inception": ["🧠", "🌀", "💤", "🎬"],
+    "The Godfather": ["🎩", "🔫", "👨‍👦", "🇮🇹"],
+    "Pulp Fiction": ["💼", "🍔", "🗣️", "🕺"],
+    "The Dark Knight": ["🦇", "🃏", "💣", "🏙️"],
+    "Titanic": ["🚢", "💎", "❄️", "💔"],
+    "Avatar": ["🌿", "👽", "🌳", "🔵"],
+    "Star Wars": ["✨", "🌌", "⚔️", "👨‍👦"],
+    "The Matrix": ["💊", "🕶️", "🤖", "💻"],
+    "Jurassic Park": ["🦖", "🦕", "🏝️", "🧬"],
+    "The Shawshank Redemption": ["🔒", "🔨", "🌧️", "🏃‍♂️"]
   }
+}
