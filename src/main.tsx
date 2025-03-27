@@ -25,6 +25,7 @@ Devvit.addCustomPostType({
     const [leaderboard, setLeaderboard] = useState<Array<{member: string, score: number}>>([]);
     const [username, setUsername] = useState('');
     const [currentView, setCurrentView] = useState<'home' | 'game' | 'leaderboard'>('home');
+    const [wrongCount, setWrongCount] = useState(0); // Track wrong answers
 
     // Dynamic background based on category
     const getBackgroundCSS = () => {
@@ -136,6 +137,8 @@ Devvit.addCustomPostType({
 
     // Start a new round with a random item from the current category
     const startNewRound = () => {
+      // Only allow a new round if the player hasn't been eliminated
+      if (wrongCount >= 5) return;
       const items = Object.keys(categories[category]);
       const randomItem = items[Math.floor(Math.random() * items.length)];
       setCurrentItem(randomItem);
@@ -143,8 +146,9 @@ Devvit.addCustomPostType({
       setMessage('');
     };
 
-    // Check the user's guess
+    // Check the user's guess and update wrong answer count if needed
     const checkGuess = async () => {
+      if (wrongCount >= 5) return; // Do nothing if eliminated
       if (userGuess.toLowerCase() === currentItem.toLowerCase()) {
         const pointsEarned = Math.max(1, 5 - clueIndex);
         setMessage(`Correct! You earned ${pointsEarned} point${pointsEarned > 1 ? 's' : ''}!`);
@@ -152,7 +156,13 @@ Devvit.addCustomPostType({
         setScore(newScore);
         if (username) await saveScore(username, newScore);
       } else {
-        setMessage("Sorry, that's not correct. Try again!");
+        const newWrongCount = wrongCount + 1;
+        setWrongCount(newWrongCount);
+        if (newWrongCount >= 5) {
+          setMessage("You have been eliminated!");
+        } else {
+          setMessage("Sorry, that's not correct. Try again!");
+        }
       }
       setUserGuess('');
     };
@@ -166,6 +176,11 @@ Devvit.addCustomPostType({
       setClueIndex(0);
       setMessage('');
     };
+
+    // Calculate hearts display for lives remaining
+    const totalLives = 5;
+    const livesRemaining = Math.max(0, totalLives - wrongCount);
+    const heartsDisplay = '❤️'.repeat(livesRemaining) + '♡'.repeat(totalLives - livesRemaining);
 
     // Rendering based on current view
     let content;
@@ -195,6 +210,8 @@ Devvit.addCustomPostType({
                   setUsername(`Guest-${Math.floor(Math.random() * 10000)}`);
                 }
                 setCurrentView('game');
+                // Reset wrong answers when starting a new game
+                setWrongCount(0);
                 startNewRound();
               }}
               size="large"
@@ -226,6 +243,9 @@ Devvit.addCustomPostType({
               Back
             </button>
             <text style="heading">Score: {score}</text>
+            <spacer />
+            {/* Display hearts (lives) at the top right */}
+            <text>{heartsDisplay}</text>
           </hstack>
           <text style="heading" size="xlarge">Guess The Clue!</text>
           <text>Current Category: {category}</text>
@@ -260,14 +280,20 @@ Devvit.addCustomPostType({
               <button onPress={() => context.ui.showForm(guessForm)}>Enter guess</button>
             </hstack>
             {userGuess && <text>Current guess: {userGuess}</text>}
-            <button onPress={checkGuess} appearance="primary">Submit Guess</button>
+            <button 
+              onPress={checkGuess} 
+              appearance="primary"
+              disabled={wrongCount >= 5} // Disable if eliminated
+            >
+              Submit Guess
+            </button>
           </vstack>
           {message && <text color={message.includes('Correct') ? 'green' : 'red'}>{message}</text>}
           <text style="heading">Score: {score}</text>
-          <button onPress={startNewRound}>New Clue</button>
-          <button 
-            onPress={() => setCurrentView('leaderboard')}
-          >
+          <button onPress={startNewRound} disabled={wrongCount >= 5}>
+            New Clue
+          </button>
+          <button onPress={() => setCurrentView('leaderboard')}>
             Go to Leaderboard
           </button>
         </vstack>
