@@ -19,7 +19,7 @@ type WordItem = {
 };
 const words: WordItem[] = wordsData;
 
-// Black background for all pages
+// Always black background
 const getBackgroundColor = () => 'black';
 
 Devvit.addCustomPostType({
@@ -50,7 +50,7 @@ Devvit.addCustomPostType({
   const [revealedLetters, setRevealedLetters] = useState<string[]>([]);
 
   // ============================
-  // On load, fetch user
+  // On load: fetch user
   // ============================
   useState(() => {
     const fetchUser = async () => {
@@ -91,6 +91,8 @@ Devvit.addCustomPostType({
     fetchLeaderboard();
     return null;
   });
+
+  // Listen for realtime updates
   const channel = useChannel({
     name: 'leaderboard_updates',
     onMessage: (newEntry) => {
@@ -109,10 +111,20 @@ Devvit.addCustomPostType({
       );
     },
   });
+
+  // Save score and re-fetch local leaderboard to keep it updated
   const saveScore = async (playerUsername: string, gameScore: number) => {
     try {
       await context.redis.zAdd('leaderboard', { member: playerUsername, score: gameScore });
       context.realtime.send('leaderboard_updates', { member: playerUsername, score: gameScore });
+      // Re-fetch to ensure local scoreboard is correct
+      const updatedLB = await getLeaderboard();
+      setLeaderboard(
+        updatedLB.filter(
+          (entry): entry is { member: string; score: number } =>
+            typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
+        )
+      );
     } catch (error) {
       console.error('Error saving score:', error);
     }
@@ -132,6 +144,7 @@ Devvit.addCustomPostType({
       context.ui.showToast(`Welcome, ${values.username || 'Guest'}!`);
     }
   );
+
   const guessForm = useForm(
     {
       title: 'Enter your guess',
@@ -142,6 +155,7 @@ Devvit.addCustomPostType({
       setTimeout(() => checkGuess(), 100);
     }
   );
+
   const wordITGuessForm = useForm(
     {
       title: 'Enter your guess',
@@ -154,42 +168,43 @@ Devvit.addCustomPostType({
   );
 
   // ============================
-  // Category Game (4 lives)
+  // Category Game (4-lives)
   // ============================
   const startNewRound = () => {
     setWrongCount(0);
     setUserGuess('');
     setMessage('');
     setClueIndex(0);
-    // pick puzzle
+
     const items = Object.keys(categories[category]);
     if (items.length === 0) return;
     const newIndex = Math.floor(Math.random() * items.length);
-    const randomItem = items[newIndex];
-    setCurrentItem(randomItem);
+    setCurrentItem(items[newIndex]);
   };
 
   const checkGuess = async () => {
     if (!currentItem) return;
+    // If correct
     if (userGuess.trim().toLowerCase() === currentItem.toLowerCase()) {
-      // correct => instantly load next puzzle
       const pointsEarned = Math.max(1, 5 - clueIndex);
       setMessage(`Correct! You earned ${pointsEarned} point${pointsEarned > 1 ? 's' : ''}!`);
       const newScore = score + pointsEarned;
       setScore(newScore);
       if (username) await saveScore(username, newScore);
 
-      // Instantly pick new puzzle
+      // Immediately pick a new puzzle
       startNewRound();
     } else {
-      // wrong guess
+      // Wrong guess
       const newWrong = wrongCount + 1;
       setWrongCount(newWrong);
       if (newWrong >= 4) {
-        // Out of 4 lives
+        // Out of 4 lives => end game
         setMessage(`You have been eliminated! The correct answer was: ${currentItem}`);
-        // Instantly pick new puzzle
-        startNewRound();
+        // Save final score if needed
+        if (username) await saveScore(username, score);
+        // Return user to Home (end the game)
+        setShowHome(true);
       } else {
         setMessage("Sorry, that's not correct. Try again!");
       }
@@ -203,14 +218,14 @@ Devvit.addCustomPostType({
     setUserGuess('');
     setMessage('');
     setClueIndex(0);
+
     const items = Object.keys(categories[newCategory]);
     if (items.length === 0) return;
     const newIndex = Math.floor(Math.random() * items.length);
-    const randomItem = items[newIndex];
-    setCurrentItem(randomItem);
+    setCurrentItem(items[newIndex]);
   };
 
-  // For the main game, we disable the “Submit Guess” button if out of lives
+  // Buttons are disabled if user is out of lives
   const isMainGameDisabled = wrongCount >= 4;
 
   // ============================
@@ -222,9 +237,8 @@ Devvit.addCustomPostType({
     setMessage('');
     if (words.length === 0) return;
     const newIndex = Math.floor(Math.random() * words.length);
-    const chosen = words[newIndex];
-    setCurrentWord(chosen);
-    const underscores = chosen.word.split('').map(() => '_');
+    setCurrentWord(words[newIndex]);
+    const underscores = words[newIndex].word.split('').map(() => '_');
     setRevealedLetters(underscores);
   };
 
@@ -244,22 +258,25 @@ Devvit.addCustomPostType({
 
   const checkWordITGuess = async () => {
     if (!currentWord) return;
+    // If correct
     if (userGuess.trim().toLowerCase() === currentWord.word.toLowerCase()) {
-      // correct => instantly pick new puzzle
       const pointsEarned = Math.max(1, 4 - wordAttempt);
       setMessage(`Correct! You earned ${pointsEarned} point${pointsEarned > 1 ? 's' : ''}.`);
       const newScore = score + pointsEarned;
       setScore(newScore);
       if (username) await saveScore(username, newScore);
 
-      startWordITRound(); // instantly pick new word
+      // Instantly pick new word
+      startWordITRound();
     } else {
-      // wrong guess
+      // Wrong guess
       const nextAttempt = wordAttempt + 1;
       setWordAttempt(nextAttempt);
       if (nextAttempt > 3) {
         setMessage(`No more attempts! The correct word was: ${currentWord.word}.`);
-        // instantly pick new word
+        // Save final score if needed
+        if (username) await saveScore(username, score);
+        // Instantly pick new word
         startWordITRound();
       } else {
         setMessage('Sorry, try again!');
@@ -269,11 +286,11 @@ Devvit.addCustomPostType({
     setUserGuess('');
   };
 
-  // For WordIT, we disable guess if attempts exceeded
+  // WordIT disabled if out of attempts
   const isWordITDisabled = wordAttempt > 3;
 
-  // If we haven't picked a puzzle yet, do so
-  if (!currentItem && showHome === false && !showWordIt) {
+  // If we haven't picked a puzzle yet in the main game, do so
+  if (!currentItem && !showHome && !showWordIt) {
     startNewRound();
   }
 
