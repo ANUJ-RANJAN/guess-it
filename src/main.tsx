@@ -225,9 +225,22 @@ const nameForm = useForm(
           </vstack>
         ) : (
           // Your existing game UI
-          <vstack padding="medium" gap="medium" alignment="center" backgroundColor={getBackgroundColor()}>
-            <text style="heading" size="xlarge">Guess The Clue!</text>
-            <text>Current Category: {category}</text>
+<vstack padding="medium" gap="medium" alignment="center" backgroundColor={getBackgroundColor()}>
+  {/* Add this hstack at the top for navigation */}
+  <hstack width="100%" alignment="start top" gap="medium">
+  <button 
+    appearance="secondary" 
+    size="small"
+    icon="back"
+    onPress={() => setShowHome(true)}
+  >
+    Back
+  </button>
+  <text style="heading">Score: {score}</text>
+</hstack>
+
+  <text style="heading" size="xlarge">Guess The Clue!</text>
+  <text>Current Category: {category}</text>
             <hstack gap="medium">
               {Object.keys(categories).map((cat) => (
                 <button
@@ -284,12 +297,6 @@ const nameForm = useForm(
             )}
             
             {/* Back to home button */}
-            <button 
-              appearance="secondary" 
-              onPress={() => setShowHome(true)}
-            >
-              Back to Home
-            </button>
           </vstack>
         )}
       </blocks>
