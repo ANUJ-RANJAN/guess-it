@@ -16,29 +16,25 @@ Devvit.addCustomPostType({
   name: 'GuessIT',
   description: 'A fun guessing game with different categories',
   render: (context) => {
+    // Game state
     const [category, setCategory] = useState('cricket');
     const [currentItem, setCurrentItem] = useState('');
     const [clueIndex, setClueIndex] = useState(0);
     const [userGuess, setUserGuess] = useState('');
     const [message, setMessage] = useState('');
     const [score, setScore] = useState(0);
-    const [leaderboard, setLeaderboard] = useState<Array<{member: string, score: number}>>([]);
+    const [leaderboard, setLeaderboard] = useState<Array<{ member: string; score: number }>>([]);
     const [username, setUsername] = useState('');
+    // currentView can be 'home', 'game', or 'leaderboard'
     const [currentView, setCurrentView] = useState<'home' | 'game' | 'leaderboard'>('home');
-    const [wrongCount, setWrongCount] = useState(0); // Track wrong answers
+    // Track wrong answers
+    const [wrongCount, setWrongCount] = useState(0);
+    // Flag to indicate game over (elimination)
+    const [eliminated, setEliminated] = useState(false);
 
-    // Dynamic background based on category
-    const getBackgroundCSS = () => {
-      switch(category) {
-        case 'cricket':
-          return `background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);`;
-        case 'football':
-          return `background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);`;
-        case 'movies':
-          return `background: linear-gradient(135deg, #4b134f 0%, #c94b4b 100%);`;
-        default:
-          return `background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);`;
-      }
+    // Background gradient style: light black to a blackish white.
+    const getBackgroundStyle = () => {
+      return { background: 'linear-gradient(135deg, #333, #ccc)' };
     };
 
     // Get current user on load
@@ -55,7 +51,7 @@ Devvit.addCustomPostType({
       return null;
     });
 
-    // Leaderboard functions
+    // Leaderboard retrieval function
     const getLeaderboard = async () => {
       return await context.redis.zRange('leaderboard', 0, 4, {
         reverse: true,
@@ -63,13 +59,17 @@ Devvit.addCustomPostType({
       });
     };
 
+    // Fetch leaderboard on load
     useState(() => {
       const fetchLeaderboard = async () => {
         try {
           const initialLeaderboard = await getLeaderboard();
-          setLeaderboard(initialLeaderboard.filter((entry): entry is {member: string, score: number} =>
-            typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
-          ));
+          setLeaderboard(
+            initialLeaderboard.filter(
+              (entry): entry is { member: string; score: number } =>
+                typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
+            )
+          );
         } catch (error) {
           console.error('Error fetching leaderboard:', error);
         }
@@ -78,6 +78,7 @@ Devvit.addCustomPostType({
       return null;
     });
 
+    // Listen for realtime leaderboard updates
     const channel = useChannel({
       name: 'leaderboard_updates',
       onMessage: (newLeaderboardEntry) => {
@@ -89,12 +90,16 @@ Devvit.addCustomPostType({
           })
           .slice(0, 5);
         
-        setLeaderboard(newLeaderboard.filter((entry): entry is {member: string, score: number} =>
-          typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
-        ));
+        setLeaderboard(
+          newLeaderboard.filter(
+            (entry): entry is { member: string; score: number } =>
+              typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
+          )
+        );
       },
     });
 
+    // Save the player's score to the leaderboard
     const saveScore = async (playerUsername: string, gameScore: number) => {
       try {
         await context.redis.zAdd('leaderboard', { member: playerUsername, score: gameScore });
@@ -107,19 +112,19 @@ Devvit.addCustomPostType({
     // Form for entering a name
     const nameForm = useForm(
       {
-        title: "Enter your name",
+        title: 'Enter your name',
         fields: [
           {
-            name: "username",
-            label: "Your Name",
-            type: "string"
-          }
+            name: 'username',
+            label: 'Your Name',
+            type: 'string',
+          },
         ],
-        acceptLabel: "Save"
+        acceptLabel: 'Save',
       },
       (values) => {
         setUsername(values.username || `Guest-${Math.floor(Math.random() * 10000)}`);
-        context.ui.showToast(`Welcome, ${values.username || "Guest"}!`);
+        context.ui.showToast(`Welcome, ${values.username || 'Guest'}!`);
       }
     );
 
@@ -127,7 +132,7 @@ Devvit.addCustomPostType({
     const guessForm = useForm(
       {
         title: 'Enter your guess',
-        fields: [{ name: 'guess', label: 'Your guess', type: 'string' }]
+        fields: [{ name: 'guess', label: 'Your guess', type: 'string' }],
       },
       (values) => {
         setUserGuess(values.guess || '');
@@ -135,9 +140,8 @@ Devvit.addCustomPostType({
       }
     );
 
-    // Start a new round with a random item from the current category
+    // Start a new round; only if player is not eliminated
     const startNewRound = () => {
-      // Only allow a new round if the player hasn't been eliminated
       if (wrongCount >= 5) return;
       const items = Object.keys(categories[category]);
       const randomItem = items[Math.floor(Math.random() * items.length)];
@@ -146,9 +150,9 @@ Devvit.addCustomPostType({
       setMessage('');
     };
 
-    // Check the user's guess and update wrong answer count if needed
+    // Check the guess and update wrong answer count if needed
     const checkGuess = async () => {
-      if (wrongCount >= 5) return; // Do nothing if eliminated
+      if (wrongCount >= 5) return; // Already eliminated
       if (userGuess.toLowerCase() === currentItem.toLowerCase()) {
         const pointsEarned = Math.max(1, 5 - clueIndex);
         setMessage(`Correct! You earned ${pointsEarned} point${pointsEarned > 1 ? 's' : ''}!`);
@@ -159,7 +163,21 @@ Devvit.addCustomPostType({
         const newWrongCount = wrongCount + 1;
         setWrongCount(newWrongCount);
         if (newWrongCount >= 5) {
-          setMessage("You have been eliminated!");
+          setMessage('You have been eliminated!');
+          if (username) await saveScore(username, score);
+          // Re-fetch leaderboard to update it
+          const updatedLeaderboard = await getLeaderboard();
+          setLeaderboard(
+            updatedLeaderboard.filter(
+              (entry): entry is { member: string; score: number } =>
+                typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
+            )
+          );
+          // After a short delay, switch to Game Over view
+          setTimeout(() => {
+            setEliminated(true);
+            setCurrentView('home');
+          }, 2000);
         } else {
           setMessage("Sorry, that's not correct. Try again!");
         }
@@ -167,7 +185,7 @@ Devvit.addCustomPostType({
       setUserGuess('');
     };
 
-    // Change category and immediately start a new round in that category
+    // Change the category and start a new round
     const changeCategory = (newCategory: string) => {
       setCategory(newCategory);
       const items = Object.keys(categories[newCategory]);
@@ -182,60 +200,106 @@ Devvit.addCustomPostType({
     const livesRemaining = Math.max(0, totalLives - wrongCount);
     const heartsDisplay = '❤️'.repeat(livesRemaining) + '♡'.repeat(totalLives - livesRemaining);
 
-    // Rendering based on current view
+    // Render content based on current view
     let content;
     if (currentView === 'home') {
-      // Home Page
-      content = (
-        <vstack padding="medium" gap="large" alignment="center">
-          <text style="heading" size="xxlarge">GuessIT</text>
-          <image 
-            url="logo.png" 
-            imageWidth={150} 
-            imageHeight={150} 
-            description="GuessIT game logo"
-          />
-          <vstack gap="medium" width="80%">
-            <button 
-              appearance="primary" 
-              onPress={() => context.ui.showForm(nameForm)}
-            >
-              Enter Your Name
-            </button>
-            <text>{username ? `Playing as: ${username}` : "No name entered yet"}</text>
-            <button 
-              appearance="primary" 
+      // Home screen: if eliminated, show final score and a Home button; otherwise, show main menu.
+      if (eliminated) {
+        content = (
+          <vstack padding="medium" gap="large" alignment="center">
+            <text style="heading" size="xxlarge">
+              Game Over
+            </text>
+            <text>Your final score: {score}</text>
+            <button
+              appearance="primary"
               onPress={() => {
-                if (!username) {
-                  setUsername(`Guest-${Math.floor(Math.random() * 10000)}`);
-                }
-                setCurrentView('game');
-                // Reset wrong answers when starting a new game
+                // Reset game state and start a new game
+                setEliminated(false);
+                setScore(0);
                 setWrongCount(0);
+                setCurrentView('game');
                 startNewRound();
               }}
               size="large"
             >
-              Start Game
+              Play Again
             </button>
-            <button 
-              appearance="secondary" 
+            <button
+              appearance="secondary"
               onPress={() => setCurrentView('leaderboard')}
               size="large"
             >
               View Leaderboard
             </button>
+            {/* A Home button so user can manually return to the main menu */}
+            <button
+              appearance="secondary"
+              onPress={() => {
+                setEliminated(false);
+                setScore(0);
+                setWrongCount(0);
+                setCurrentView('home');
+              }}
+              size="large"
+            >
+              Home
+            </button>
           </vstack>
-          <text size="small">A fun emoji guessing game!</text>
-        </vstack>
-      );
+        );
+      } else {
+        content = (
+          <vstack padding="medium" gap="large" alignment="center">
+            <text style="heading" size="xxlarge">
+              GuessIT
+            </text>
+            <image
+              url="logo.png"
+              imageWidth={150}
+              imageHeight={150}
+              description="GuessIT game logo"
+            />
+            <vstack gap="medium" width="80%">
+              <button appearance="primary" onPress={() => context.ui.showForm(nameForm)}>
+                Enter Your Name
+              </button>
+              <text>{username ? `Playing as: ${username}` : 'No name entered yet'}</text>
+              <button
+                appearance="primary"
+                onPress={() => {
+                  if (!username) {
+                    setUsername(`Guest-${Math.floor(Math.random() * 10000)}`);
+                  }
+                  // Reset game values before starting
+                  setScore(0);
+                  setWrongCount(0);
+                  setEliminated(false);
+                  setCurrentView('game');
+                  startNewRound();
+                }}
+                size="large"
+              >
+                Start Game
+              </button>
+              <button
+                appearance="secondary"
+                onPress={() => setCurrentView('leaderboard')}
+                size="large"
+              >
+                View Leaderboard
+              </button>
+            </vstack>
+            <text size="small">A fun emoji guessing game!</text>
+          </vstack>
+        );
+      }
     } else if (currentView === 'game') {
-      // Game Page
+      // Game screen with back button on top left and hearts (lives) on top right.
       content = (
-        <vstack padding="medium" gap="medium" alignment="center" backgroundColor={getBackgroundCSS()}>
+        <vstack padding="medium" gap="medium" alignment="center" style={getBackgroundStyle()}>
           <hstack width="100%" alignment="start top" gap="medium">
-            <button 
-              appearance="secondary" 
+            <button
+              appearance="secondary"
               size="small"
               icon="back"
               onPress={() => setCurrentView('home')}
@@ -244,10 +308,11 @@ Devvit.addCustomPostType({
             </button>
             <text style="heading">Score: {score}</text>
             <spacer />
-            {/* Display hearts (lives) at the top right */}
             <text>{heartsDisplay}</text>
           </hstack>
-          <text style="heading" size="xlarge">Guess The Clue!</text>
+          <text style="heading" size="xlarge">
+            Guess The Clue!
+          </text>
           <text>Current Category: {category}</text>
           <hstack gap="medium">
             {Object.keys(categories).map((cat) => (
@@ -261,34 +326,43 @@ Devvit.addCustomPostType({
             ))}
           </hstack>
           <vstack padding="medium" gap="medium" border="thin" borderColor="neutral" cornerRadius="medium">
-            <text style="heading" size="large">Clue</text>
+            <text style="heading" size="large">
+              Clue
+            </text>
             <hstack gap="medium" alignment="center">
-              {currentItem && categories[category][currentItem]
-                .slice(0, clueIndex + 1)
-                .map((emoji, index) => (
-                  <text key={index.toString()} size="xxlarge">{emoji}</text>
-              ))}
+              {currentItem &&
+                categories[category][currentItem]
+                  .slice(0, clueIndex + 1)
+                  .map((emoji, index) => (
+                    <text key={index.toString()} size="xxlarge">
+                      {emoji}
+                    </text>
+                  ))}
             </hstack>
             <text>(Guess based on the clues above)</text>
             {clueIndex < categories[category][currentItem]?.length - 1 && (
-              <button onPress={() => setClueIndex(clueIndex + 1)}>Show Next Clue</button>
+              <button onPress={() => setClueIndex(clueIndex + 1)}>
+                Show Next Clue
+              </button>
             )}
           </vstack>
           <vstack gap="small" width="100%">
             <hstack>
               <text>Your guess: </text>
-              <button onPress={() => context.ui.showForm(guessForm)}>Enter guess</button>
+              <button onPress={() => context.ui.showForm(guessForm)}>
+                Enter guess
+              </button>
             </hstack>
             {userGuess && <text>Current guess: {userGuess}</text>}
-            <button 
-              onPress={checkGuess} 
-              appearance="primary"
-              disabled={wrongCount >= 5} // Disable if eliminated
-            >
+            <button onPress={checkGuess} appearance="primary" disabled={wrongCount >= 5}>
               Submit Guess
             </button>
           </vstack>
-          {message && <text color={message.includes('Correct') ? 'green' : 'red'}>{message}</text>}
+          {message && (
+            <text color={message.includes('Correct') ? 'green' : 'red'}>
+              {message}
+            </text>
+          )}
           <text style="heading">Score: {score}</text>
           <button onPress={startNewRound} disabled={wrongCount >= 5}>
             New Clue
@@ -299,12 +373,12 @@ Devvit.addCustomPostType({
         </vstack>
       );
     } else if (currentView === 'leaderboard') {
-      // Leaderboard Page
+      // Leaderboard screen with back button on top left.
       content = (
-        <vstack padding="medium" gap="medium" alignment="center" backgroundColor={getBackgroundCSS()}>
+        <vstack padding="medium" gap="medium" alignment="center" style={getBackgroundStyle()}>
           <hstack width="100%" alignment="start top" gap="medium">
-            <button 
-              appearance="secondary" 
+            <button
+              appearance="secondary"
               size="small"
               icon="back"
               onPress={() => setCurrentView('home')}
@@ -316,7 +390,9 @@ Devvit.addCustomPostType({
           {leaderboard.length > 0 ? (
             leaderboard.map((entry, index) => (
               <hstack key={index.toString()} gap="medium" alignment="center">
-                <text style="heading" size="small">{index + 1}.</text>
+                <text style="heading" size="small">
+                  {index + 1}.
+                </text>
                 <text>{entry.member}</text>
                 <spacer />
                 <text style="heading">{entry.score}</text>
@@ -325,21 +401,14 @@ Devvit.addCustomPostType({
           ) : (
             <text>No scores yet. Be the first!</text>
           )}
-          <button 
-            onPress={() => setCurrentView('home')}
-            appearance="primary"
-          >
+          <button onPress={() => setCurrentView('home')} appearance="primary">
             Back to Home
           </button>
         </vstack>
       );
     }
 
-    return (
-      <blocks height="tall">
-        {content}
-      </blocks>
-    );
+    return <blocks height="tall">{content}</blocks>;
   },
 });
 
