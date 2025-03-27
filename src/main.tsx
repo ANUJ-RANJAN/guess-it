@@ -40,13 +40,12 @@ Devvit.addCustomPostType({
     const [username, setUsername] = useState('');
     const [showHome, setShowHome] = useState(true);
     const [showWordIt, setShowWordIt] = useState(false);
-    // This state is used only for the standalone Leaderboard page.
     const [showLeaderboardView, setShowLeaderboardView] = useState(false);
-    // 4-lives system for the main game
+    // 4-lives for the main game
     const [wrongCount, setWrongCount] = useState(0);
     // WordIT states
     const [currentWord, setCurrentWord] = useState<WordItem | null>(null);
-    const [wordAttempt, setWordAttempt] = useState(1); // 1..3 attempts
+    const [wordAttempt, setWordAttempt] = useState(1);
     const [revealedLetters, setRevealedLetters] = useState<string[]>([]);
 
     // ============================
@@ -66,7 +65,7 @@ Devvit.addCustomPostType({
     });
 
     // ============================
-    // Leaderboard Logic
+    // Leaderboard logic
     // ============================
     const getLeaderboard = async () => {
       return await context.redis.zRange('leaderboard', 0, 4, {
@@ -81,10 +80,7 @@ Devvit.addCustomPostType({
           setLeaderboard(
             initialLB.filter(
               (entry): entry is { member: string; score: number } =>
-                typeof entry === 'object' &&
-                entry !== null &&
-                'member' in entry &&
-                'score' in entry
+                typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
             )
           );
         } catch (error) {
@@ -107,10 +103,7 @@ Devvit.addCustomPostType({
         setLeaderboard(
           newLB.filter(
             (entry): entry is { member: string; score: number } =>
-              typeof entry === 'object' &&
-              entry !== null &&
-              'member' in entry &&
-              'score' in entry
+              typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
           )
         );
       },
@@ -123,10 +116,7 @@ Devvit.addCustomPostType({
         setLeaderboard(
           updatedLB.filter(
             (entry): entry is { member: string; score: number } =>
-              typeof entry === 'object' &&
-              entry !== null &&
-              'member' in entry &&
-              'score' in entry
+              typeof entry === 'object' && entry !== null && 'member' in entry && 'score' in entry
           )
         );
       } catch (error) {
@@ -170,7 +160,7 @@ Devvit.addCustomPostType({
     );
 
     // ============================
-    // Category Game (4 Lives) Logic
+    // Category Game (4 Lives)
     // ============================
     const startNewRound = () => {
       setWrongCount(0);
@@ -191,15 +181,14 @@ Devvit.addCustomPostType({
         const newScore = score + pointsEarned;
         setScore(newScore);
         if (username) await saveScore(username, newScore);
-        // Immediately advance to a new puzzle
-        startNewRound();
+        startNewRound(); // Immediately advance to next puzzle
       } else {
         const newWrong = wrongCount + 1;
         setWrongCount(newWrong);
         if (newWrong >= 4) {
           setMessage(`You have been eliminated! The correct answer was: ${currentItem}`);
           if (username) await saveScore(username, score);
-          // End the game: return to Home
+          // End the game and return to Home immediately
           setShowHome(true);
         } else {
           setMessage("Sorry, that's not correct. Try again!");
@@ -223,7 +212,7 @@ Devvit.addCustomPostType({
     const isMainGameDisabled = wrongCount >= 4;
 
     // ============================
-    // WordIT Mode Logic
+    // WordIT Mode
     // ============================
     const startWordITRound = () => {
       setWordAttempt(1);
@@ -258,15 +247,16 @@ Devvit.addCustomPostType({
         const newScore = score + pointsEarned;
         setScore(newScore);
         if (username) await saveScore(username, newScore);
-        // Immediately pick new word
-        startWordITRound();
+        startWordITRound(); // Immediately pick a new word on correct guess
       } else {
         const nextAttempt = wordAttempt + 1;
         setWordAttempt(nextAttempt);
         if (nextAttempt > 3) {
           setMessage(`No more attempts! The correct word was: ${currentWord.word}.`);
           if (username) await saveScore(username, score);
-          startWordITRound();
+          // Instead of starting a new word, return to Home when out of attempts
+          setShowWordIt(false);
+          setShowHome(true);
         } else {
           setMessage('Sorry, try again!');
           revealRandomLetter();
@@ -277,6 +267,11 @@ Devvit.addCustomPostType({
 
     const isWordITDisabled = wordAttempt > 3;
 
+    // If no puzzle has been picked in the category game, pick one now
+    if (!currentItem && !showHome && !showWordIt && !showLeaderboardView) {
+      startNewRound();
+    }
+
     // ============================
     // Rendering Views
     // ============================
@@ -286,9 +281,19 @@ Devvit.addCustomPostType({
       content = (
         <vstack padding="medium" gap="large" alignment="center" backgroundColor={getBackgroundColor()}>
           <text style="heading" size="xxlarge">GuessIT</text>
-          <image url="logo.png" imageWidth={150} imageHeight={150} description="GuessIT game logo" />
+          <image
+            url="logo.png"
+            imageWidth={150}
+            imageHeight={150}
+            description="GuessIT game logo"
+          />
           <vstack gap="medium" width="80%">
-            <button appearance="primary" onPress={() => context.ui.showForm(nameForm)}>
+            <button
+              appearance="primary"
+              onPress={() => {
+                context.ui.showForm(nameForm);
+              }}
+            >
               Enter Your Name
             </button>
             <text>{username ? `Playing as: ${username}` : 'No name entered yet'}</text>
@@ -443,7 +448,7 @@ Devvit.addCustomPostType({
         </vstack>
       );
     } else {
-      // CATEGORY GAME
+      // CATEGORY GAME UI
       const usedLives = wrongCount;
       const maxLives = 4;
       const heartsDisplay = '❤️'.repeat(Math.max(0, maxLives - usedLives)) + '♡'.repeat(usedLives);
