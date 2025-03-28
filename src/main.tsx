@@ -483,12 +483,13 @@ Devvit.addCustomPostType({
           </hstack>
           <vstack padding="medium" gap="medium" border="thin" borderColor="neutral" cornerRadius="medium">
             <text style="heading" size="large">Clue</text>
-            <hstack gap="medium" alignment="center">
-              {currentItem &&
-                categories[category][currentItem].slice(0, clueIndex + 1).map((emoji, index) => (
-                  <text key={index.toString()} size="xxlarge">{emoji}</text>
-                ))}
-            </hstack>
+            <vstack gap="small">
+  {currentItem &&
+    categories[category][currentItem].slice(0, clueIndex + 1).map((clue, index) => (
+      <text key={index.toString()} size="small">{clue}</text>
+    ))}
+</vstack>
+
             <text>(Guess based on the clues above)</text>
             {clueIndex < categories[category][currentItem]?.length - 1 && (
               <button onPress={() => setClueIndex(clueIndex + 1)}>Show Next Clue</button>

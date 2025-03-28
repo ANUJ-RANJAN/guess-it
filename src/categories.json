@@ -1,38 +1,1033 @@
 {
   "cricket": {
-    "MS Dhoni": ["🇮🇳 Wicketkeeper", "7️⃣", "MD", "🏆 2011 WC"],
-    "Virat Kohli": ["🇮🇳 Batsman", "1️⃣8️⃣", "VK", "2️⃣5️⃣4️⃣"],
-    "Rohit Sharma": ["🇮🇳 Opener", "4️⃣5️⃣", "RS", "2️⃣6️⃣4️⃣"],
-    "Jasprit Bumrah": ["🇮🇳 Fast Bowler", "9️⃣3️⃣", "JB", "6️⃣/1️⃣9️⃣"],
-    "Steve Smith": ["🇦🇺 Batsman", "4️⃣9️⃣", "SS", "2️⃣3️⃣9️⃣"],
-    "Kane Williamson": ["🇳🇿 Batsman", "2️⃣2️⃣", "KW", "2️⃣5️⃣1️⃣"],
-    "Joe Root": ["🏴󠁧󠁢󠁥󠁮󠁧󠁿 Batsman", "6️⃣6️⃣", "JR", "2️⃣5️⃣4️⃣"],
-    "Ben Stokes": ["🏴󠁧󠁢󠁥󠁮󠁧󠁿 All-rounder", "5️⃣5️⃣", "BS", "1️⃣5️⃣8️⃣"],
-    "Pat Cummins": ["🇦🇺 Fast Bowler", "3️⃣0️⃣", "PC", "6️⃣/2️⃣3️⃣"],
-    "Babar Azam": ["🇵🇰 Batsman", "5️⃣6️⃣", "BA", "1️⃣9️⃣6️⃣"]
+    "Sachin Tendulkar": [
+      "🇮🇳 Master Blaster",
+      "Most runs in international cricket",
+      "God of Cricket",
+      "Batting legend"
+    ],
+
+    "AB de Villiers": [
+      "🇿🇦 Mr. 360 Degrees",
+      "Innovative batsman",
+      "Unbelievable shot-making",
+      "Versatile cricket genius"
+    ],
+    "Dale Steyn": [
+      "🇿🇦 Fastest bowler",
+      "Lethal swing and pace",
+      "Test match specialist",
+      "South African bowling legend"
+    ],
+    "Mitchell Starc": [
+      "🇦🇺 Left-arm fast bowler",
+      "Devastating yorker specialist",
+      "World Cup match-winner",
+      "Powerful and consistent"
+    ],
+    "Ravichandran Ashwin": [
+      "🇮🇳 Spin wizard",
+      "Strategic off-spinner",
+      "Test match match-winner",
+      "Intelligent cricket brain"
+    ],
+    "Hashim Amla": [
+      "🇿🇦 Elegant right-hand batsman",
+      "Calm and composed",
+      "Record-breaking performer",
+      "Consistent run-machine"
+    ],
+    "Jimmy Anderson": [
+      "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Swing bowling maestro",
+      "Most Test wickets for England",
+      "Consistent performer",
+      "Master of seam and swing"
+    ],
+    "Chris Gayle": [
+      "🇯🇲 Universe Boss",
+      "T20 specialist",
+      "Powerful hitting",
+      "Massive six-hitter"
+    ],
+    "Shane Watson": [
+      "🇦🇺 All-round performer",
+      "IPL and international star",
+      "Match-winning ability",
+      "Dynamic cricketer"
+    ],
+    "Shahid Afridi": [
+      "🇵🇰 Boom Boom",
+      "Aggressive all-rounder",
+      "Explosive batting",
+      "Legendary Pakistani player"
+    ],
+    "Graeme Smith": [
+      "🇿🇦 Left-handed opening batsman",
+      "Long-time South African captain",
+      "Tough and determined",
+      "Consistent run-scorer"
+    ],
+    "Brendon McCullum": [
+      "🇳🇿 Aggressive wicketkeeper-batsman",
+      "Revolutionary captain",
+      "T20 specialist",
+      "Changed New Zealand cricket"
+    ],
+    "Daniel Vettori": [
+      "🇳🇿 Left-arm spinner",
+      "Intelligent bowler",
+      "Calm and composed",
+      "New Zealand cricket icon"
+    ],
+    "Andrew Flintoff": [
+      "🏴󠁧󠁢󠁥󠁮󠁧󠁿 All-round match-winner",
+      "Ashes hero",
+      "Powerful all-rounder",
+      "Charismatic performer"
+    ],
+    "Kumar Sangakkara": [
+      "🇱🇰 Elegant wicketkeeper-batsman",
+      "Sri Lankan cricket legend",
+      "Technically brilliant",
+      "Highest runs scorer"
+    ],
+    "Wasim Akram": [
+      "🇵🇰 Bowling wizard",
+      "King of Swing",
+      "Left-arm pace legend",
+      "Inspirational bowler"
+    ],
+    "Jacques Kallis": [
+      "🇿🇦 Complete cricketer",
+      "All-time great all-rounder",
+      "Batting and bowling expert",
+      "Consistent performer"
+    ],
+    "Rahul Dravid": [
+      "🇮🇳 The Wall",
+      "Technically perfect batsman",
+      "Mr. Dependable",
+      "Test match specialist"
+    ],
+    "Adam Gilchrist": [
+      "🇦🇺 Attacking wicketkeeper-batsman",
+      "Revolutionized wicketkeeper role",
+      "Aggressive striker",
+      "World Cup winner"
+    ],
+    "Mahela Jayawardene": [
+      "🇱🇰 Elegant batsman",
+      "Sri Lankan batting maestro",
+      "Tactical genius",
+      "Smooth stroke-maker"
+    ],
+    "VVS Laxman": [
+      "🇮🇳 Follow-on specialist",
+      "Wristy stroke player",
+      "Test match match-winner",
+      "Stylish batsman"
+    ],
+    "Shane Warne": [
+      "🇦🇺 Spin bowling legend",
+      "Leg-spin master",
+      "Match-winning bowler",
+      "Charismatic personality"
+    ],
+    "Mark Waugh": [
+      "🇦🇺 Mr. Cool",
+      "Elegant right-hand batsman",
+      "Stylish fielder",
+      "Australian cricket icon"
+    ],
+    "Glenn McGrath": [
+      "🇦🇺 Bowling machine",
+      "Precision pace bowler",
+      "World Cup specialist",
+      "Most consistent bowler"
+    ],
+    "Misbah-ul-Haq": [
+      "🇵🇰 Calm and composed captain",
+      "Transformed Pakistan cricket",
+      "Defensive batting expert",
+      "Reliable performer"
+    ],
+    "Inzamam-ul-Haq": [
+      "🇵🇰 Elegant middle-order batsman",
+      "Big match player",
+      "Soft-spoken leader",
+      "Powerful stroke-maker"
+    ],
+    "Brian Lara": [
+      "🇹🇹 Batting genius",
+      "Highest individual score",
+      "West Indies legend",
+      "Artistic stroke player"
+    ],
+    "Anil Kumble": [
+      "🇮🇳 Spin bowling legend",
+      "Most Test wickets for India",
+      "Academic approach",
+      "Intelligent bowler"
+    ],
+    "Sourav Ganguly": [
+      "🇮🇳 Aggressive left-handed batsman",
+      "Prince of Kolkata",
+      "Fearless captain",
+      "Changed Indian cricket culture"
+    ],
+    "Shaun Pollock": [
+      "🇿🇦 All-round performer",
+      "Most economical bowler",
+      "Consistent performer",
+      "Cricket gentleman"
+    ],
+    "Nathan Lyon": [
+      "🇦🇺 Off-spin specialist",
+      "Australia's spin hope",
+      "Test match match-winner",
+      "Consistent performer"
+    ],
+    "Ravindra Jadeja": [
+      "🇮🇳 Rockstar of Indian cricket",
+      "Fielding specialist",
+      "All-round performer",
+      "Dynamic cricketer"
+    ],
+    "Mitchell Johnson": [
+      "🇦🇺 Lethal left-arm pacer",
+      "Intimidating bowler",
+      "Ashes hero",
+      "Aggressive performer"
+    ],
+    "Younis Khan": [
+      "🇵🇰 Batting maestro",
+      "Test match specialist",
+      "Most runs for Pakistan",
+      "Calm and determined"
+    ],
+    "Shoaib Akhtar": [
+      "🇵🇰 Rawalpindi Express",
+      "Fastest bowler",
+      "Aggressive pace",
+      "International cricket sensation"
+    ],
+    "Sunil Gavaskar": [
+      "🇮🇳 Little Master",
+      "Batting legend",
+      "Opener extraordinaire",
+      "Technical perfection"
+    ],
+    "Yuvraj Singh": [
+      "🇮🇳 Big match player",
+      "T20 and World Cup hero",
+      "Aggressive batsman",
+      "Inspirational performer"
+    ],
+    "Andrew Symonds": [
+      "🇦🇺 All-round dynamo",
+      "Aggressive performer",
+      "Big-hitting all-rounder",
+      "Versatile cricketer"
+    ],
+    "Stuart Broad": [
+      "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Tall fast bowler",
+      "Ashes specialist",
+      "Consistent wicket-taker",
+      "Test match performer"
+    ],
+    "Kevin Pietersen": [
+      "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Maverick batsman",
+      "Attacking stroke player",
+      "Match-winner",
+      "Flamboyant performer"
+    ],
+    "MS Dhoni": [
+      "🇮🇳 Finisher supreme",
+      "Coolest captain",
+      "Strategic genius",
+      "Best wicketkeeper-batsman"
+    ],
+    "Virender Sehwag": [
+      "🇮🇳 Destructive opener",
+      "First Indian to score triple century",
+      "Aggressive batting",
+      "Fearless approach"
+    ],
+    "Harbhajan Singh": [
+      "🇮🇳 Turbanator",
+      "Spin bowling legend",
+      "Match-winner",
+      "Aggressive performer"
+    ],
+    "Daniel Ricciardo": [
+      "🇦🇺 Spin bowling enthusiast",
+      "Emerging talent",
+      "Promising performer",
+      "Future prospect"
+    ],
+    "Ajinkya Rahane": [
+      "🇮🇳 Test match specialist",
+      "Calm and composed",
+      "Technical batsman",
+      "Reliable performer"
+    ],
+    "Cheteshwar Pujara": [
+      "🇮🇳 Wall of Indian batting",
+      "Test match anchor",
+      "Patient batsman",
+      "Technical expert"
+    ]
   },
-  "football": {
-    "Lionel Messi": ["🇦🇷 Forward", "1️⃣0️⃣", "LM", "9️⃣1️⃣ goals"],
-    "Cristiano Ronaldo": ["🇵🇹 Forward", "7️⃣", "CR", "8️⃣5️⃣0️⃣+ goals"],
-    "Neymar Jr": ["🇧🇷 Forward", "1️⃣0️⃣", "NJ", "7️⃣7️⃣ goals"],
-    "Kylian Mbappe": ["🇫🇷 Forward", "7️⃣", "KM", "4️⃣2️⃣ goals"],
-    "Robert Lewandowski": ["🇵🇱 Striker", "9️⃣", "RL", "4️⃣1️⃣ goals"],
-    "Kevin De Bruyne": ["🇧🇪 Midfielder", "1️⃣7️⃣", "KD", "2️⃣0️⃣ assists"],
-    "Erling Haaland": ["🇳🇴 Striker", "9️⃣", "EH", "3️⃣6️⃣ goals"],
-    "Mohamed Salah": ["🇪🇬 Forward", "1️⃣1️⃣", "MS", "3️⃣2️⃣ goals"],
-    "Virgil van Dijk": ["🇳🇱 Defender", "4️⃣", "VD", "🏆 UCL"],
-    "Luka Modric": ["🇭🇷 Midfielder", "1️⃣0️⃣", "LM", "🏆 Ballon d'Or"]
-  },
-  "movies": {
-    "Inception": ["🧠", "🌀", "💤", "🎬"],
-    "The Godfather": ["🎩", "🔫", "👨‍👦", "🇮🇹"],
-    "Pulp Fiction": ["💼", "🍔", "🗣️", "🕺"],
-    "The Dark Knight": ["🦇", "🃏", "💣", "🏙️"],
-    "Titanic": ["🚢", "💎", "❄️", "💔"],
-    "Avatar": ["🌿", "👽", "🌳", "🔵"],
-    "Star Wars": ["✨", "🌌", "⚔️", "👨‍👦"],
-    "The Matrix": ["💊", "🕶️", "🤖", "💻"],
-    "Jurassic Park": ["🦖", "🦕", "🏝️", "🧬"],
-    "The Shawshank Redemption": ["🔒", "🔨", "🌧️", "🏃‍♂️"]
-  }
-}
+
+      "football": {
+        "Lionel Messi": [
+          "🇦🇷 Forward, wears No. 10",
+          "Nickname: La Pulga",
+          "Renowned dribbler and playmaker",
+          "Iconic goal scorer"
+        ],
+        "Cristiano Ronaldo": [
+          "🇵🇹 Forward, wears No. 7",
+          "Nickname: CR7",
+          "Aerial prowess and clinical finishing",
+          "Over 850 career goals"
+        ],
+        "Neymar Jr": [
+          "🇧🇷 Forward, creative dribbler",
+          "Wears No. 10",
+          "Known for flair and skill",
+          "Star performer at club and country"
+        ],
+        "Kylian Mbappe": [
+          "🇫🇷 Forward with explosive pace",
+          "Wears No. 7",
+          "Young and dynamic goal scorer",
+          "Key player for PSG and France"
+        ],
+        "Robert Lewandowski": [
+          "🇵🇱 Striker, wears No. 9",
+          "Clinical finisher",
+          "Record-breaking in Bundesliga",
+          "Consistent and powerful"
+        ],
+        "Kevin De Bruyne": [
+          "🇧🇪 Midfielder, wears No. 17",
+          "Creative playmaker",
+          "Exceptional vision and passing",
+          "Key assist provider"
+        ],
+        "Erling Haaland": [
+          "🇳🇴 Striker, wears No. 9",
+          "Powerful and athletic",
+          "Rising star with a high goal rate",
+          "Finishing specialist"
+        ],
+        "Mohamed Salah": [
+          "🇪🇬 Forward, wears No. 11",
+          "Quick and agile winger",
+          "Top goal scorer for Liverpool",
+          "Skilled dribbler"
+        ],
+        "Virgil van Dijk": [
+          "🇳🇱 Defender, wears No. 4",
+          "Commanding presence",
+          "Excellent at reading the game",
+          "Key to team defense"
+        ],
+        "Luka Modric": [
+          "🇭🇷 Midfielder, wears No. 10",
+          "Masterful playmaker",
+          "Ballon d'Or winner",
+          "Controls the tempo"
+        ],
+        "Harry Kane": [
+          "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Striker, wears No. 9",
+          "Prolific goal scorer",
+          "Complete forward",
+          "England's captain"
+        ],
+        "Sadio Mane": [
+          "🇸🇳 Forward, wears No. 10",
+          "Explosive winger",
+          "Liverpool and Bayern Munich star",
+          "Rapid and clinical"
+        ],
+        "Karim Benzema": [
+          "🇫🇷 Striker, wears No. 9",
+          "Technical and intelligent",
+          "Real Madrid legend",
+          "Complete forward"
+        ],
+        "Bruno Fernandes": [
+          "🇵🇹 Midfielder, wears No. 18",
+          "Creative playmaker",
+          "Manchester United talisman",
+          "Goal-scoring midfielder"
+        ],
+
+        "Trent Alexander-Arnold": [
+          "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Right-back, wears No. 66",
+          "Exceptional playmaking defender",
+          "Liverpool's creative outlet",
+          "Set-piece specialist"
+        ],
+        "Riyad Mahrez": [
+          "🇩🇿 Winger, wears No. 26",
+          "Silky skills",
+          "Manchester City maestro",
+          "Dribbling expert"
+        ],
+        "Thibaut Courtois": [
+          "🇧🇪 Goalkeeper, wears No. 1",
+          "Towering presence",
+          "Real Madrid's last line",
+          "Shot-stopping expert"
+        ],
+        "Paulo Dybala": [
+          "🇦🇷 Forward, wears No. 10",
+          "Elegant playmaker",
+          "Juventus icon",
+          "Technical genius"
+        ],
+        "Gareth Bale": [
+          "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Winger, wears No. 11",
+          "Pace and power",
+          "Real Madrid legend",
+          "Goal-scoring ability"
+        ],
+        "Alisson Becker": [
+          "🇧🇷 Goalkeeper, wears No. 1",
+          "Liverpool's wall",
+          "Commanding presence",
+          "Modern goalkeeper"
+        ],
+        "Paul Pogba": [
+          "🇫🇷 Midfielder, wears No. 6",
+          "Creative powerhouse",
+          "World Cup winner",
+          "Technical marvel"
+        ],
+        "Bernardo Silva": [
+          "🇵🇹 Midfielder, wears No. 20",
+          "Intelligent playmaker",
+          "Manchester City genius",
+          "Technical wizard"
+        ],
+        "Son Heung-min": [
+          "🇰🇷 Forward, wears No. 7",
+          "Tottenham's star",
+          "Lethal finisher",
+          "Rapid and clinical"
+        ],
+        "Sergio Ramos": [
+          "🇪🇸 Defender, wears No. 4",
+          "Legendary center-back",
+          "Passionate leader",
+          "Goal-scoring defender"
+        ],
+        "Fabinho": [
+          "🇧🇷 Defensive midfielder, wears No. 3",
+          "Liverpool's defensive anchor",
+          "Tactical intelligence",
+          "Versatile player"
+        ],
+        "Eden Hazard": [
+          "🇧🇪 Forward, wears No. 7",
+          "Dribbling maestro",
+          "Chelsea and Real Madrid icon",
+          "Creative genius"
+        ],
+        "Marc-Andre ter Stegen": [
+          "🇩🇪 Goalkeeper, wears No. 1",
+          "Barcelona's last line",
+          "Ball-playing goalkeeper",
+          "Shot-stopping expert"
+        ],
+        "Antoine Griezmann": [
+          "🇫🇷 Forward, wears No. 7",
+          "Atletico and Barcelona star",
+          "World Cup winner",
+          "Tactical forward"
+        ],
+        "Joshua Kimmich": [
+          "🇩🇪 Midfielder, wears No. 6",
+          "Bayern Munich's heart",
+          "Versatile player",
+          "Tactical brain"
+        ],
+        "N'Golo Kante": [
+          "🇫🇷 Midfielder, wears No. 7",
+          "Defensive midfield master",
+          "Chelsea and World Cup winner",
+          "Tireless runner"
+        ],
+        "Ivan Rakitic": [
+          "🇭🇷 Midfielder, wears No. 10",
+          "Barcelona maestro",
+          "Creative playmaker",
+          "Technical genius"
+        ],
+        "Pierre-Emerick Aubameyang": [
+          "🇬🇦 Striker, wears No. 9",
+          "Explosive forward",
+          "Arsenal and Chelsea striker",
+          "Rapid goal scorer"
+        ],
+        "Raheem Sterling": [
+          "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Winger, wears No. 10",
+          "Manchester City and Chelsea star",
+          "Pace and creativity",
+          "Attacking threat"
+        ],
+        "Ederson": [
+          "🇧🇷 Goalkeeper, wears No. 31",
+          "Manchester City's wall",
+          "Ball-playing goalkeeper",
+          "Modern goalkeeping"
+        ],
+        "Angel Di Maria": [
+          "🇦🇷 Winger, wears No. 11",
+          "PSG and Argentina star",
+          "Creative playmaker",
+          "Dribbling expert"
+        ],
+        "Philippe Coutinho": [
+          "🇧🇷 Midfielder, wears No. 10",
+          "Creative playmaker",
+          "Barcelona and Bayern Munich",
+          "Technical wizard"
+        ],
+        "Rodri": [
+          "🇪🇸 Defensive midfielder, wears No. 16",
+          "Manchester City's anchor",
+          "Tactical intelligence",
+          "Modern midfielder"
+        ],
+        "Thiago Alcantara": [
+          "🇧🇷 Midfielder, wears No. 6",
+          "Liverpool's maestro",
+          "Technical genius",
+          "Playmaking expert"
+        ],
+        "Jadon Sancho": [
+          "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Winger, wears No. 25",
+          "Manchester United star",
+          "Young talent",
+          "Dribbling specialist"
+        ],
+        "Frenkie de Jong": [
+          "🇳🇱 Midfielder, wears No. 21",
+          "Barcelona's future",
+          "Tactical intelligence",
+          "Modern midfielder"
+        ],
+        "Gerard Moreno": [
+          "🇪🇸 Striker, wears No. 9",
+          "Villarreal's star",
+          "Clinical finisher",
+          "La Liga goal machine"
+        ],
+        "Federico Valverde": [
+          "🇺🇾 Midfielder, wears No. 15",
+          "Real Madrid's rising star",
+          "Box-to-box midfielder",
+          "Energetic performer"
+        ],
+        "Raphael Varane": [
+          "🇫🇷 Defender, wears No. 5",
+          "Manchester United's rock",
+          "World Cup winner",
+          "Defensive master"
+        ],
+        "Ferland Mendy": [
+          "🇫🇷 Left-back, wears No. 23",
+          "Real Madrid defender",
+          "Defensive specialist",
+          "Modern full-back"
+        ],
+        "Casemiro": [
+          "🇧🇷 Defensive midfielder, wears No. 14",
+          "Real Madrid legend",
+          "Defensive anchor",
+          "Tactical brain"
+        ],
+        "Joao Felix": [
+          "🇵🇹 Forward, wears No. 7",
+          "Atletico Madrid's talent",
+          "Creative forward",
+          "Young sensation"
+        ],
+        "Georginio Wijnaldum": [
+          "🇳🇱 Midfielder, wears No. 5",
+          "PSG and Liverpool star",
+          "Tactical midfielder",
+          "Versatile player"
+        ],
+        "Timo Werner": [
+          "🇩🇪 Striker, wears No. 11",
+          "Chelsea forward",
+          "Rapid attacker",
+          "Goal-scoring threat"
+        ],
+        "Kai Havertz": [
+          "🇩🇪 Forward, wears No. 29",
+          "Chelsea's rising star",
+          "Creative attacker",
+          "Technical genius"
+        ],
+        "Donny van de Beek": [
+          "🇳🇱 Midfielder, wears No. 34",
+          "Manchester United player",
+          "Tactical midfielder",
+          "Creative talent"
+        ],
+        "Federico Chiesa": [
+          "🇮🇹 Winger, wears No. 10",
+          "Juventus star",
+          "Dynamic attacker",
+          "Rising Italian talent"
+        ],
+        "Dusan Vlahovic": [
+          "🇷🇸 Striker, wears No. 9",
+          "Juventus forward",
+          "Clinical finisher",
+          "Emerging European talent"
+        ],
+        "Gavi": [
+          "🇪🇸 Midfielder, wears No. 30",
+          "Barcelona wonderkid",
+          "Tactical prodigy",
+          "Future of Spanish football"
+        ],
+        "Ronald Araujo": [
+          "🇺🇾 Defender, wears No. 4",
+          "Barcelona's defensive rock",
+          "Emerging talent",
+          "Modern center-back"
+        ],
+        "Martin Odegaard": [
+          "🇳🇴 Midfielder, wears No. 8",
+          "Arsenal's creative hub",
+          "Playmaking genius",
+          "Norwegian talent"
+        ],
+        "Pedri": [
+          "🇪🇸 Midfielder, wears No. 16",
+          "Barcelona's golden boy",
+          "Tactical prodigy",
+          "Future midfield maestro"
+        ],
+        "Ansu Fati": [
+          "🇪🇸 Forward, wears No. 10",
+          "Barcelona's wonderkid",
+          "Young sensation",
+          "Emerging star"
+        ],
+        "Darwin Nunez": [
+          "🇺🇾 Striker, wears No. 27",
+          "Liverpool's new sensation",
+          "Emerging forward",
+          "Goal-scoring threat"
+        ],
+        "Luis Diaz": [
+          "🇨🇴 Winger, wears No. 23",
+          "Liverpool's dynamite",
+          "Creative attacker",
+          "South American talent"
+        ],
+        "Bukayo Saka": [
+          "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Winger, wears No. 7",
+          "Arsenal's rising star",
+          "Creative talent",
+          "England's future"
+        ]
+      },
+      
+          "movies": {
+            "Inception": [
+              "Mind-bending heist film",
+              "Dreams within dreams",
+              "Directed by Christopher Nolan",
+              "Released: 2010"
+            ],
+            "The Godfather": [
+              "Epic mafia saga",
+              "Follows the Corleone family",
+              "Classic crime drama",
+              "Released: 1972"
+            ],
+            "Pulp Fiction": [
+              "Nonlinear crime story",
+              "Cult classic by Tarantino",
+              "Famous dialogue and scenes",
+              "Released: 1994"
+            ],
+            "The Dark Knight": [
+              "Gritty Batman film",
+              "Heath Ledger's iconic Joker",
+              "Explosive action",
+              "Released: 2008"
+            ],
+            "Titanic": [
+              "Epic romance on a doomed ship",
+              "Tragic love story",
+              "Directed by James Cameron",
+              "Released: 1997"
+            ],
+            "Avatar": [
+              "Sci-fi epic on Pandora",
+              "Stunning visuals and 3D effects",
+              "Directed by James Cameron",
+              "Released: 2009"
+            ],
+            "Star Wars": [
+              "Classic space opera",
+              "Lightsaber battles & intergalactic war",
+              "Iconic characters",
+              "Released: 1977"
+            ],
+            "The Matrix": [
+              "Revolutionary sci-fi film",
+              "Red vs. blue pill dilemma",
+              "Directed by the Wachowskis",
+              "Released: 1999"
+            ],
+            "Jurassic Park": [
+              "Dinosaurs resurrected",
+              "Thrilling adventure",
+              "Directed by Steven Spielberg",
+              "Released: 1993"
+            ],
+            "The Shawshank Redemption": [
+              "Story of hope and redemption",
+              "Prison escape drama",
+              "Based on Stephen King's novella",
+              "Released: 1994"
+            ],
+            "Forrest Gump": [
+              "Heartwarming life journey",
+              "Tom Hanks' iconic performance",
+              "Multiple historical eras",
+              "Released: 1994"
+            ],
+            "The Lord of the Rings: The Fellowship of the Ring": [
+              "Epic fantasy adventure",
+              "First in Tolkien trilogy",
+              "Directed by Peter Jackson",
+              "Released: 2001"
+            ],
+            "Gladiator": [
+              "Historical epic",
+              "Russell Crowe's powerful performance",
+              "Roman revenge saga",
+              "Released: 2000"
+            ],
+            "Fight Club": [
+              "Psychological thriller",
+              "Cult classic",
+              "Directed by David Fincher",
+              "Released: 1999"
+            ],
+            "The Silence of the Lambs": [
+              "Psychological horror",
+              "Anthony Hopkins as Hannibal Lecter",
+              "Oscar-winning performances",
+              "Released: 1991"
+            ],
+            "Schindler's List": [
+              "Holocaust historical drama",
+              "Directed by Steven Spielberg",
+              "Powerful true story",
+              "Released: 1993"
+            ],
+            "Goodfellas": [
+              "Mafia crime drama",
+              "Directed by Martin Scorsese",
+              "Based on true events",
+              "Released: 1990"
+            ],
+            "The Departed": [
+              "Crime thriller",
+              "Star-studded cast",
+              "Directed by Martin Scorsese",
+              "Released: 2006"
+            ],
+            "Interstellar": [
+              "Space exploration epic",
+              "Directed by Christopher Nolan",
+              "Mind-bending sci-fi",
+              "Released: 2014"
+            ],
+            "The Green Mile": [
+              "Prison drama",
+              "Based on Stephen King novel",
+              "Supernatural elements",
+              "Released: 1999"
+            ],
+            "Saving Private Ryan": [
+              "World War II epic",
+              "Directed by Steven Spielberg",
+              "Intense battle scenes",
+              "Released: 1998"
+            ],
+            "Eternal Sunshine of the Spotless Mind": [
+              "Unique love story",
+              "Mind-bending narrative",
+              "Directed by Michel Gondry",
+              "Released: 2004"
+            ],
+            "The Lion King": [
+              "Animated Disney classic",
+              "Powerful coming-of-age story",
+              "Iconic music",
+              "Released: 1994"
+            ],
+            "Spirited Away": [
+              "Anime masterpiece",
+              "Directed by Hayao Miyazaki",
+              "Magical fantasy",
+              "Released: 2001"
+            ],
+            "The Sixth Sense": [
+              "Psychological thriller",
+              "Iconic twist ending",
+              "Directed by M. Night Shyamalan",
+              "Released: 1999"
+            ],
+            "Parasite": [
+              "Korean social satire",
+              "Oscar-winning film",
+              "Directed by Bong Joon-ho",
+              "Released: 2019"
+            ],
+            "Blade Runner 2049": [
+              "Sci-fi sequel",
+              "Visually stunning",
+              "Directed by Denis Villeneuve",
+              "Released: 2017"
+            ],
+            "Mad Max: Fury Road": [
+              "Post-apocalyptic action",
+              "Directed by George Miller",
+              "High-octane adventure",
+              "Released: 2015"
+            ],
+            "La La Land": [
+              "Musical romantic comedy",
+              "Directed by Damien Chazelle",
+              "Modern Hollywood tribute",
+              "Released: 2016"
+            ],
+            "Gone Girl": [
+              "Psychological thriller",
+              "Based on Gillian Flynn novel",
+              "Directed by David Fincher",
+              "Released: 2014"
+            ],
+            "The Social Network": [
+              "Facebook origin story",
+              "Directed by David Fincher",
+              "Aaron Sorkin screenplay",
+              "Released: 2010"
+            ],
+            "Django Unchained": [
+              "Western revenge drama",
+              "Directed by Quentin Tarantino",
+              "Controversial slavery narrative",
+              "Released: 2012"
+            ],
+            "Whiplash": [
+              "Music drama",
+              "Intense mentor-student relationship",
+              "Directed by Damien Chazelle",
+              "Released: 2014"
+            ],
+            "The Grand Budapest Hotel": [
+              "Quirky comedy",
+              "Directed by Wes Anderson",
+              "Stylized storytelling",
+              "Released: 2014"
+            ],
+            "Arrival": [
+              "Cerebral sci-fi",
+              "Alien communication story",
+              "Directed by Denis Villeneuve",
+              "Released: 2016"
+            ],
+            "The Wolf of Wall Street": [
+              "Black comedy biography",
+              "Directed by Martin Scorsese",
+              "Based on true events",
+              "Released: 2013"
+            ],
+            "Moonlight": [
+              "Coming-of-age drama",
+              "Oscar-winning film",
+              "Explores identity",
+              "Released: 2016"
+            ],
+            "Mad Max": [
+              "Post-apocalyptic classic",
+              "Mel Gibson's breakthrough",
+              "Dystopian action",
+              "Released: 1979"
+            ],
+            "A Beautiful Mind": [
+              "Biographical drama",
+              "Russell Crowe as John Nash",
+              "Mental health story",
+              "Released: 2001"
+            ],
+            "Memento": [
+              "Psychological thriller",
+              "Directed by Christopher Nolan",
+              "Non-linear storytelling",
+              "Released: 2000"
+            ],
+            "Black Panther": [
+              "Superhero cultural phenomenon",
+              "Marvel's groundbreaking film",
+              "Afrofuturistic design",
+              "Released: 2018"
+            ],
+            "No Country for Old Men": [
+              "Neo-western thriller",
+              "Directed by Coen Brothers",
+              "Oscar-winning drama",
+              "Released: 2007"
+            ],
+            "Ex Machina": [
+              "Artificial intelligence drama",
+              "Philosophical sci-fi",
+              "Directed by Alex Garland",
+              "Released: 2014"
+            ],
+            "The Martian": [
+              "Space survival story",
+              "Directed by Ridley Scott",
+              "Scientific problem-solving",
+              "Released: 2015"
+            ],
+            "Gravity": [
+              "Space survival thriller",
+              "Groundbreaking visual effects",
+              "Directed by Alfonso Cuarón",
+              "Released: 2013"
+            ],
+            "Her": [
+              "Futuristic love story",
+              "AI relationship exploration",
+              "Directed by Spike Jonze",
+              "Released: 2013"
+            ],
+            "Nightcrawler": [
+              "Dark media satire",
+              "Jake Gyllenhaal performance",
+              "Crime journalism thriller",
+              "Released: 2014"
+            ],
+            "Crouching Tiger, Hidden Dragon": [
+              "Martial arts epic",
+              "Directed by Ang Lee",
+              "Poetic action sequences",
+              "Released: 2000"
+            ],
+            "Pan's Labyrinth": [
+              "Dark fantasy",
+              "Directed by Guillermo del Toro",
+              "Magical realism",
+              "Released: 2006"
+            ],
+            "Inglourious Basterds": [
+              "World War II revenge film",
+              "Directed by Quentin Tarantino",
+              "Alternate history narrative",
+              "Released: 2009"
+            ],
+            "The Big Short": [
+              "Financial crisis comedy-drama",
+              "Based on true events",
+              "Satirical financial storytelling",
+              "Released: 2015"
+            ],
+            "Drive": [
+              "Neo-noir crime drama",
+              "Stylized action thriller",
+              "Ryan Gosling starring",
+              "Released: 2011"
+            ],
+            "Annihilation": [
+              "Sci-fi psychological horror",
+              "Directed by Alex Garland",
+              "Cosmic mystery",
+              "Released: 2018"
+            ],
+            "John Wick": [
+              "Action revenge thriller",
+              "Keanu Reeves starring",
+              "Stylized gun-fu action",
+              "Released: 2014"
+            ],
+            "Apocalypse Now": [
+              "Vietnam War epic",
+              "Directed by Francis Ford Coppola",
+              "Psychological war drama",
+              "Released: 1979"
+            ],
+            "Citizen Kane": [
+              "Classic cinema masterpiece",
+              "Directed by Orson Welles",
+              "Revolutionary filmmaking",
+              "Released: 1941"
+            ],
+            "Rear Window": [
+              "Hitchcock suspense thriller",
+              "Psychological mystery",
+              "James Stewart starring",
+              "Released: 1954"
+            ],
+            "Casablanca": [
+              "Classic romantic drama",
+              "World War II romance",
+              "Iconic Hollywood film",
+              "Released: 1942"
+            ],
+            "One Flew Over the Cuckoo's Nest": [
+              "Psychological drama",
+              "Jack Nicholson starring",
+              "Mental institution story",
+              "Released: 1975"
+            ],
+            "12 Angry Men": [
+              "Courtroom drama",
+              "Jury deliberation story",
+              "Social justice narrative",
+              "Released: 1957"
+            ],
+            "Back to the Future": [
+              "Sci-fi comedy adventure",
+              "Time travel classic",
+              "Michael J. Fox starring",
+              "Released: 1985"
+            ],
+            "The Princess Bride": [
+              "Fantasy adventure comedy",
+              "Cult classic romantic tale",
+              "Witty and heartwarming",
+              "Released: 1987"
+            ],
+            "Alien": [
+              "Sci-fi horror masterpiece",
+              "Directed by Ridley Scott",
+              "Space survival thriller",
+              "Released: 1979"
+            ],
+            "Seven Samurai": [
+              "Japanese epic film",
+              "Directed by Akira Kurosawa",
+              "Legendary action drama",
+              "Released: 1954"
+            ]
+          }
+        }
+
